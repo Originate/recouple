@@ -18,7 +18,7 @@
     "prettier": "^1.8.2"
   },
   "scripts": {
-    "check-all": "flow && yarn format-check && jest",
+    "check-all": "flow check && yarn format-check && jest",
     "format": "prettier --write src/**/*.js",
     "format-check": "prettier -l src/**/*.js"
   }
