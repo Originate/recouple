@@ -1,0 +1,14 @@
+{
+  "name": "safe-api",
+  "version": "0",
+  "description": "typesafe api routing",
+  "main": "src/index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "flow-typed": "^2.2.3",
+    "jest": "^21.2.1"
+  },
+  "dependencies": {
+    "flow-bin": "^0.55.0"
+  }
+}
