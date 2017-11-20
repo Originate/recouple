@@ -1,5 +1,5 @@
 // @flow
 
-it("work", () => {
+it("works", () => {
   expect(1 + 1).toBe(2);
 });
