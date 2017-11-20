@@ -8,8 +8,6 @@
   "extends": [
     "eslint:recommended",
     "plugin:flowtype/recommended",
-    "plugin:import/errors",
-    "plugin:import/warnings",
     "plugin:jest/recommended"
   ],
   "parser": "babel-eslint",
@@ -20,14 +18,8 @@
     },
     "sourceType": "module"
   },
-  "plugins": ["flowtype", "import", "jest"],
+  "plugins": ["flowtype", "jest"],
   "rules": {
-    "flowtype/generic-spacing": "off",
     "flowtype/require-valid-file-annotation": [2, "always"]
-  },
-  "settings": {
-    "import/resolver": {
-      "babel-module": {}
-    }
   }
 }
