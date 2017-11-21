@@ -2,10 +2,11 @@
 import * as SafeAPI from "./";
 
 export async function safeGet<I: {}, O>(
+  baseURL: string,
   endpoint: SafeAPI.Endpoint<I, O>,
   input: I //eslint-disable-line no-unused-vars
 ): Promise<O> {
   const clientData = SafeAPI.extractClientData(endpoint);
-  const resp = await fetch(clientData.url);
+  const resp = await fetch(`${baseURL}${clientData.url}`);
   return resp.json();
 }

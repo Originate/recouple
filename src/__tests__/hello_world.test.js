@@ -10,9 +10,9 @@ function makeSafeServer(): {
   server: *,
   endpoint: SafeAPI.Endpoint<{}, string>
 } {
-  const endpoint: SafeAPI.Endpoint<{}, string> = new SafeAPI.Cons({
-    middleware: new SafeAPI.Fragment("/hello"),
-    next: new SafeAPI.Nil()
+  const endpoint: SafeAPI.Endpoint<{}, string> = new SafeAPI.Snoc({
+    previous: new SafeAPI.Nil(),
+    middleware: new SafeAPI.Fragment("hello")
   });
   const app = new Koa();
   app.use(
@@ -35,22 +35,20 @@ describe("for a GET endpoint with no parameters", () => {
 
   it("should be able to generate a compatible client", async () => {
     const { server, endpoint } = makeSafeServer();
-    const absoluteEndpoint: SafeAPI.Endpoint<{}, string> = new SafeAPI.Cons({
-      middleware: new SafeAPI.Fragment(
-        `http://localhost:${server.address().port}`
-      ),
-      next: endpoint
-    });
-    const resp = await Client.safeGet(absoluteEndpoint, {});
+    const resp = await Client.safeGet(
+      `http://localhost:${server.address().port}`,
+      endpoint,
+      {}
+    );
     expect(resp).toBe("world");
   });
 });
 
 // Server type tests
 () => {
-  const endpoint: SafeAPI.Endpoint<{}, string> = new SafeAPI.Cons({
-    middleware: new SafeAPI.Fragment("/hello"),
-    next: new SafeAPI.Nil()
+  const endpoint: SafeAPI.Endpoint<{}, string> = new SafeAPI.Snoc({
+    previous: new SafeAPI.Nil(),
+    middleware: new SafeAPI.Fragment("hello")
   });
   const app = new Koa();
 
@@ -83,23 +81,21 @@ describe("for a GET endpoint with no parameters", () => {
 
 // Client type tests
 () => {
-  const endpoint: SafeAPI.Endpoint<{}, string> = new SafeAPI.Cons({
-    middleware: new SafeAPI.Fragment("http://localhost:8080"),
-    next: new SafeAPI.Cons({
-      middleware: new SafeAPI.Fragment("/hello"),
-      next: new SafeAPI.Nil()
-    })
+  const baseURL = "http://localhost:8080";
+  const endpoint: SafeAPI.Endpoint<{}, string> = new SafeAPI.Snoc({
+    previous: new SafeAPI.Nil(),
+    middleware: new SafeAPI.Fragment("hello")
   });
 
   // it permits correct output types in handlers
   // ok
-  (Client.safeGet(endpoint, {}): Promise<string>);
+  (Client.safeGet(baseURL, endpoint, {}): Promise<string>);
 
   // it rejects invalid output types in handlers
   // $FlowFixMe
-  (Client.safeGet(endpoint, {}): Promise<number>);
+  (Client.safeGet(baseURL, endpoint, {}): Promise<number>);
 
   // it permits correct input types in handlers
   // ok
-  Client.safeGet(endpoint, {});
+  Client.safeGet(baseURL, endpoint, {});
 };
