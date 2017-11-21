@@ -1,3 +1,2 @@
 # safe-api
-
-Bridge your frontend and backend with a single declarative, typed API specification.
+A declarative and type-safe library to bridge your frontend and backend.
