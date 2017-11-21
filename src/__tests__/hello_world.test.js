@@ -11,13 +11,16 @@ function makeSafeServer(): {
   endpoint: SafeAPI.Endpoint<{}, string>
 } {
   const endpoint: SafeAPI.Endpoint<{}, string> = new SafeAPI.Snoc({
-    previous: new SafeAPI.Nil(),
-    middleware: new SafeAPI.Fragment("hello")
+    previous: new SafeAPI.Snoc({
+      previous: new SafeAPI.Nil(),
+      middleware: new SafeAPI.Fragment("hello")
+    }),
+    middleware: new SafeAPI.Fragment("world")
   });
   const app = new Koa();
   app.use(
     Server.safeGet(endpoint, async () => {
-      return "world";
+      return "foo";
     })
   );
   const server = app.listen();
@@ -28,9 +31,11 @@ function makeSafeServer(): {
 describe("for a GET endpoint with no parameters", () => {
   it("should be able to generate a server", async () => {
     const { server } = makeSafeServer();
-    const resp = await fetch(`http://localhost:${server.address().port}/hello`);
+    const resp = await fetch(
+      `http://localhost:${server.address().port}/hello/world`
+    );
     const json = await resp.json();
-    expect(json).toBe("world");
+    expect(json).toBe("foo");
   });
 
   it("should be able to generate a compatible client", async () => {
@@ -40,21 +45,24 @@ describe("for a GET endpoint with no parameters", () => {
       endpoint,
       {}
     );
-    expect(resp).toBe("world");
+    expect(resp).toBe("foo");
   });
 });
 
 // Server type tests
 () => {
   const endpoint: SafeAPI.Endpoint<{}, string> = new SafeAPI.Snoc({
-    previous: new SafeAPI.Nil(),
-    middleware: new SafeAPI.Fragment("hello")
+    previous: new SafeAPI.Snoc({
+      previous: new SafeAPI.Nil(),
+      middleware: new SafeAPI.Fragment("hello")
+    }),
+    middleware: new SafeAPI.Fragment("world")
   });
   const app = new Koa();
 
   // it permits correct output types in handlers
   // ok
-  app.use(Server.safeGet(endpoint, async () => "world"));
+  app.use(Server.safeGet(endpoint, async () => "foo"));
 
   // it rejects invalid output types in handlers
   // $FlowFixMe
@@ -65,7 +73,7 @@ describe("for a GET endpoint with no parameters", () => {
     Server.safeGet(endpoint, async input => {
       // ok
       (input: {});
-      return "world";
+      return "foo";
     })
   );
 
@@ -74,7 +82,7 @@ describe("for a GET endpoint with no parameters", () => {
     Server.safeGet(endpoint, async input => {
       // $FlowFixMe
       (input: { foo: string });
-      return "world";
+      return "foo";
     })
   );
 };
@@ -83,8 +91,11 @@ describe("for a GET endpoint with no parameters", () => {
 () => {
   const baseURL = "http://localhost:8080";
   const endpoint: SafeAPI.Endpoint<{}, string> = new SafeAPI.Snoc({
-    previous: new SafeAPI.Nil(),
-    middleware: new SafeAPI.Fragment("hello")
+    previous: new SafeAPI.Snoc({
+      previous: new SafeAPI.Nil(),
+      middleware: new SafeAPI.Fragment("hello")
+    }),
+    middleware: new SafeAPI.Fragment("world")
   });
 
   // it permits correct output types in handlers
