@@ -1,5 +1,6 @@
 // @flow
 import * as SafeAPI from "./";
+import type { Middleware as KoaMiddleware } from "koa";
 import KoaRoute from "koa-route";
 
 type Handler<I: {}, O> = I => Promise<O>;
@@ -7,7 +8,7 @@ type Handler<I: {}, O> = I => Promise<O>;
 export function safeGet<I: {}, O>(
   endpoint: SafeAPI.Endpoint<I, O>,
   handler: Handler<I, O>
-) {
+): KoaMiddleware {
   const { url } = SafeAPI.extractServerData(endpoint);
   return KoaRoute.get(url, async (context, next) => {
     const input: any = {};

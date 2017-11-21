@@ -7,7 +7,7 @@ import Koa from "koa";
 import fetch from "isomorphic-fetch";
 
 function makeSafeServer(): {
-  server: any,
+  server: *,
   endpoint: SafeAPI.Endpoint<{}, string>
 } {
   const endpoint: SafeAPI.Endpoint<{}, string> = new SafeAPI.Cons({
