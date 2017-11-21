@@ -3,31 +3,21 @@ import * as SafeAPI from "../";
 import * as Client from "../client";
 import * as Server from "../server";
 import * as TestUtils from "../test_utils";
-import Koa from "koa";
 import fetch from "isomorphic-fetch";
+import Koa from "koa";
 
-const endpoint: SafeAPI.Endpoint<{}, string> = SafeAPI.endpoint()
+const testEndpoint: SafeAPI.Endpoint<{}, string> = SafeAPI.endpoint()
   .fragment("hello")
   .fragment("world");
 
-function makeSafeServer(): {
-  server: *,
-  endpoint: SafeAPI.Endpoint<{}, string>
-} {
-  const app = new Koa();
-  app.use(
-    Server.safeGet(endpoint, async () => {
-      return "foo";
-    })
-  );
-  const server = app.listen();
-  TestUtils.cleanupWith(() => server.close());
-  return { server, endpoint };
-}
+const testHandler = async () => "foo";
 
 describe("for a GET endpoint with no parameters", () => {
   it("should be able to generate a server", async () => {
-    const { server } = makeSafeServer();
+    const server = TestUtils.makeServer({
+      endpoint: testEndpoint,
+      handler: testHandler
+    });
     const resp = await fetch(
       `http://localhost:${server.address().port}/hello/world`
     );
@@ -36,10 +26,13 @@ describe("for a GET endpoint with no parameters", () => {
   });
 
   it("should be able to generate a compatible client", async () => {
-    const { server, endpoint } = makeSafeServer();
+    const server = TestUtils.makeServer({
+      endpoint: testEndpoint,
+      handler: testHandler
+    });
     const resp = await Client.safeGet(
       `http://localhost:${server.address().port}`,
-      endpoint,
+      testEndpoint,
       {}
     );
     expect(resp).toBe("foo");
@@ -52,15 +45,15 @@ describe("for a GET endpoint with no parameters", () => {
 
   // it permits correct output types in handlers
   // ok
-  app.use(Server.safeGet(endpoint, async () => "foo"));
+  app.use(Server.safeGet(testEndpoint, async () => "foo"));
 
   // it rejects invalid output types in handlers
   // $FlowFixMe
-  app.use(Server.safeGet(endpoint, async () => 1));
+  app.use(Server.safeGet(testEndpoint, async () => 1));
 
   // it permits correct input types in handlers
   app.use(
-    Server.safeGet(endpoint, async input => {
+    Server.safeGet(testEndpoint, async input => {
       // ok
       (input: {});
       return "foo";
@@ -69,7 +62,7 @@ describe("for a GET endpoint with no parameters", () => {
 
   // it rejects invalid input types in handlers
   app.use(
-    Server.safeGet(endpoint, async input => {
+    Server.safeGet(testEndpoint, async input => {
       // $FlowFixMe
       (input: { foo: string });
       return "foo";
@@ -83,13 +76,13 @@ describe("for a GET endpoint with no parameters", () => {
 
   // it permits correct output types in handlers
   // ok
-  (Client.safeGet(baseURL, endpoint, {}): Promise<string>);
+  (Client.safeGet(baseURL, testEndpoint, {}): Promise<string>);
 
   // it rejects invalid output types in handlers
   // $FlowFixMe
-  (Client.safeGet(baseURL, endpoint, {}): Promise<number>);
+  (Client.safeGet(baseURL, testEndpoint, {}): Promise<number>);
 
   // it permits correct input types in handlers
   // ok
-  Client.safeGet(baseURL, endpoint, {});
+  Client.safeGet(baseURL, testEndpoint, {});
 };
