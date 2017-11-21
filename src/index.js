@@ -32,22 +32,6 @@ export class Fragment<I: {}> implements Middleware<I, I> {
   }
 }
 
-export class PrependFragmentClient<I: {}> implements Middleware<I, I> {
-  urlFragment: string;
-  constructor(urlFragment: string) {
-    this.urlFragment = urlFragment;
-  }
-  mapServerData(serverData: ServerData<I>): ServerData<I> {
-    return serverData;
-  }
-  mapClientData(clientData: ClientData<I>): ClientData<I> {
-    return {
-      ...clientData,
-      url: `${this.urlFragment}${clientData.url}`
-    };
-  }
-}
-
 export interface Endpoint<I: {}, O> {}
 
 type ConsData<I_old: {}, O_old, I: {}> = {
@@ -64,28 +48,33 @@ export class Cons<I_old: {}, O_old, I: {}, O> implements Endpoint<I, O> {
 
 export class Nil<O> implements Endpoint<{}, O> {}
 
+export function fold<I: {}, Result>(
+  f: (Middleware<I, *>, Result) => Result
+): (Endpoint<I, *>, Result) => Result {
+  return (endpoint, accumulator) => {
+    if (endpoint instanceof Cons) {
+      const { middleware, next } = endpoint.data;
+      return fold(f)(next, f(middleware, accumulator));
+    } else {
+      return accumulator;
+    }
+  };
+}
+
 export function extractServerData<I: {}>(
   endpoint: Endpoint<I, *>
 ): ServerData<I> {
-  if (endpoint instanceof Cons) {
-    const { next, middleware } = endpoint.data;
-    return middleware.mapServerData(extractServerData(next));
-  } else {
-    return {
-      url: ""
-    };
-  }
+  const getData = fold((middleware, accumulator) =>
+    middleware.mapServerData(accumulator)
+  );
+  return getData(endpoint, { url: "" });
 }
 
 export function extractClientData<I: {}>(
   endpoint: Endpoint<I, *>
 ): ClientData<I> {
-  if (endpoint instanceof Cons) {
-    const { next, middleware } = endpoint.data;
-    return middleware.mapClientData(extractClientData(next));
-  } else {
-    return {
-      url: ""
-    };
-  }
+  const getData = fold((middleware, accumulator) =>
+    middleware.mapClientData(accumulator)
+  );
+  return getData(endpoint, { url: "" });
 }

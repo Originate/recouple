@@ -36,7 +36,7 @@ describe("for a GET endpoint with no parameters", () => {
   it("should be able to generate a compatible client", async () => {
     const { server, endpoint } = makeSafeServer();
     const absoluteEndpoint: SafeAPI.Endpoint<{}, string> = new SafeAPI.Cons({
-      middleware: new SafeAPI.PrependFragmentClient(
+      middleware: new SafeAPI.Fragment(
         `http://localhost:${server.address().port}`
       ),
       next: endpoint
@@ -84,7 +84,7 @@ describe("for a GET endpoint with no parameters", () => {
 // Client type tests
 () => {
   const endpoint: SafeAPI.Endpoint<{}, string> = new SafeAPI.Cons({
-    middleware: new SafeAPI.PrependFragmentClient("http://localhost:8080"),
+    middleware: new SafeAPI.Fragment("http://localhost:8080"),
     next: new SafeAPI.Cons({
       middleware: new SafeAPI.Fragment("/hello"),
       next: new SafeAPI.Nil()
