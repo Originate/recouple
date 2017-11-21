@@ -38,39 +38,9 @@ describe("endpoint", () => {
     };
   });
 
-  describe("when called as a string expansion", () => {
-    it("returns an endpoint with a single URL fragment", () => {
-      expect(endpoint`foo`).toEqual(
-        new SafeAPI.Snoc({
-          previous: new SafeAPI.Nil(),
-          middleware: new SafeAPI.Fragment("foo")
-        })
-      );
-    });
-
-    it("returns an endpoint with a single URL fragment, with interpolations applied", () => {
-      const bar = "bar";
-      expect(endpoint`foo${bar}`).toEqual(
-        new SafeAPI.Snoc({
-          previous: new SafeAPI.Nil(),
-          middleware: new SafeAPI.Fragment("foobar")
-        })
-      );
-    });
-
-    // type-level tests
-    () => {
-      // ok
-      (endpoint`foo`: SafeAPI.Endpoint<{}, string>);
-
-      // $FlowFixMe
-      (endpoint`foo`: SafeAPI.Endpoint<{ foo: string }, string>);
-    };
-  });
-
   describe("when chaining a fragment on top of a base fragment", () => {
     it("returns an endpoint with both URL fragments", () => {
-      expect(endpoint`foo`.fragment`bar`).toEqual(
+      expect(endpoint("foo").fragment("bar")).toEqual(
         new SafeAPI.Snoc({
           previous: new SafeAPI.Snoc({
             previous: new SafeAPI.Nil(),
@@ -84,10 +54,13 @@ describe("endpoint", () => {
     // type-level tests
     () => {
       // ok
-      (endpoint`foo`.fragment`bar`: SafeAPI.Endpoint<{}, string>);
+      (endpoint("foo").fragment("bar"): SafeAPI.Endpoint<{}, string>);
 
       // $FlowFixMe
-      (endpoint`foo`.fragment`bar`: SafeAPI.Endpoint<{ foo: string }, string>);
+      (endpoint("foo").fragment("bar"): SafeAPI.Endpoint<
+        { foo: string },
+        string
+      >);
     };
   });
 });

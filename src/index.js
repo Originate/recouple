@@ -1,7 +1,4 @@
 // @flow
-import { stringExpansion } from "./utils";
-import type { StringExpansion } from "./utils";
-
 export type ServerData<I: {}> = {
   url: string
 };
@@ -36,7 +33,7 @@ export class Fragment<I: {}> implements Middleware<I, I> {
 
 export interface Endpoint<I: {}, O> {
   append<I_new: {}>(middleware: Middleware<I, I_new>): Endpoint<I_new, O>;
-  fragment(first: string | Array<string>, ...args: Array<any>): Endpoint<I, O>;
+  fragment(urlFragment: string): Endpoint<I, O>;
 }
 
 export class EndpointImpl<I: {}, O> implements Endpoint<I, O> {
@@ -45,8 +42,7 @@ export class EndpointImpl<I: {}, O> implements Endpoint<I, O> {
     return new Snoc({ previous: this, middleware });
   }
 
-  fragment(first: string | Array<string>, ...args: Array<any>): Endpoint<I, O> {
-    const urlFragment = stringExpansion(x => x)(first, ...args);
+  fragment(urlFragment: string): Endpoint<I, O> {
     return this.append(new Fragment(urlFragment));
   }
 }
@@ -88,13 +84,10 @@ export function extractClientData<I: {}>(
   }
 }
 
-export function endpoint<O>(
-  first: void | string | Array<string>,
-  ...args: Array<any>
-): Endpoint<{}, O> {
-  if (typeof first === "undefined") {
-    return new Nil();
+export function endpoint<O>(urlFragment: ?string): Endpoint<{}, O> {
+  if (urlFragment) {
+    return endpoint().fragment(urlFragment);
   } else {
-    return endpoint().fragment(first, ...args);
+    return new Nil();
   }
 }
