@@ -8,12 +8,12 @@ If the feature request doesn't already exist, file it in a Github issue!
 
 ## Wanna submit a PR?
 
-### Setup the repo
+### Setup the repo:
 - Install node 8.7.0
 - Install yarn 1.3.2
 - `yarn install`
 
-### Development tools
+### Development:
 - Type-check with  `yarn flow`
 - Test with `yarn jest`
 - Format your code with `yarn format`
