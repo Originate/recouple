@@ -2,41 +2,39 @@
 import * as SafeAPI from "../";
 import * as Client from "../client";
 import * as Server from "../server";
+import * as TestUtils from "../test_utils";
 import Koa from "koa";
 import fetch from "isomorphic-fetch";
 
-function withSafeServer(
-  continuation: any => Promise<void>
-): () => Promise<void> {
-  return async () => {
-    const endpoint: SafeAPI.Endpoint<{}, string> = new SafeAPI.Cons({
-      middleware: new SafeAPI.Fragment("/hello"),
-      next: new SafeAPI.Nil()
-    });
-    const app = new Koa();
-    app.use(
-      Server.safeGet(endpoint, async () => {
-        return "world";
-      })
-    );
-    const server = app.listen();
-    await continuation({ server, endpoint });
-    server.close();
-  };
+function makeSafeServer(): {
+  server: any,
+  endpoint: SafeAPI.Endpoint<{}, string>
+} {
+  const endpoint: SafeAPI.Endpoint<{}, string> = new SafeAPI.Cons({
+    middleware: new SafeAPI.Fragment("/hello"),
+    next: new SafeAPI.Nil()
+  });
+  const app = new Koa();
+  app.use(
+    Server.safeGet(endpoint, async () => {
+      return "world";
+    })
+  );
+  const server = app.listen();
+  TestUtils.cleanupWith(() => server.close());
+  return { server, endpoint };
 }
 
-it(
-  "should be able to generate a server for a GET endpoint",
-  withSafeServer(async ({ server }) => {
+describe("for a GET endpoint with no parameters", () => {
+  it("should be able to generate a server for a GET endpoint", async () => {
+    const { server } = makeSafeServer();
     const resp = await fetch(`http://localhost:${server.address().port}/hello`);
     const json = await resp.json();
     expect(json).toBe("world");
-  })
-);
+  });
 
-it(
-  "should be able to generate a compatible client for a GET endpoint",
-  withSafeServer(async ({ endpoint, server }) => {
+  it("should be able to generate a compatible client for a GET endpoint", async () => {
+    const { server, endpoint } = makeSafeServer();
     const absoluteEndpoint: SafeAPI.Endpoint<{}, string> = new SafeAPI.Cons({
       middleware: new SafeAPI.PrependFragmentClient(
         `http://localhost:${server.address().port}`
@@ -45,8 +43,8 @@ it(
     });
     const resp = await Client.safeGet(absoluteEndpoint, {});
     expect(resp).toBe("world");
-  })
-);
+  });
+});
 
 // Server type tests
 () => {
@@ -65,9 +63,9 @@ it(
   app.use(Server.safeGet(endpoint, async () => 1));
 
   // it permits correct input types in handlers
-  // ok
   app.use(
     Server.safeGet(endpoint, async input => {
+      // ok
       (input: {});
       return "world";
     })
@@ -84,7 +82,7 @@ it(
 };
 
 // Client type tests
-async () => {
+() => {
   const endpoint: SafeAPI.Endpoint<{}, string> = new SafeAPI.Cons({
     middleware: new SafeAPI.Fragment("/hello"),
     next: new SafeAPI.Nil()
