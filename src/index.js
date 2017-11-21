@@ -84,10 +84,6 @@ export function extractClientData<I: {}>(
   }
 }
 
-export function endpoint<O>(urlFragment: ?string): Endpoint<{}, O> {
-  if (urlFragment) {
-    return endpoint().fragment(urlFragment);
-  } else {
-    return new Nil();
-  }
+export function endpoint<O>(): Endpoint<{}, O> {
+  return new Nil();
 }

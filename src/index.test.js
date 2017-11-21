@@ -3,7 +3,7 @@ import * as SafeAPI from "./";
 import { endpoint } from "./";
 
 describe("endpoint", () => {
-  describe("when called with no arguments", () => {
+  describe("when called by itself", () => {
     it("returns an empty endpoint", () => {
       expect(endpoint()).toEqual(new SafeAPI.Nil());
     });
@@ -18,9 +18,9 @@ describe("endpoint", () => {
     };
   });
 
-  describe("when called with a single string", () => {
-    it("returns an endpoint with a single URL fragment", () => {
-      expect(endpoint("foo")).toEqual(
+  describe("when chained with a single fragment", () => {
+    it("returns an endpoint with the fragment", () => {
+      expect(endpoint().fragment("foo")).toEqual(
         new SafeAPI.Snoc({
           previous: new SafeAPI.Nil(),
           middleware: new SafeAPI.Fragment("foo")
@@ -31,36 +31,10 @@ describe("endpoint", () => {
     // type-level tests
     () => {
       // ok
-      (endpoint("foo"): SafeAPI.Endpoint<{}, string>);
+      (endpoint().fragment("foo"): SafeAPI.Endpoint<{}, string>);
 
       // $FlowFixMe
-      (endpoint("foo"): SafeAPI.Endpoint<{ foo: string }, string>);
-    };
-  });
-
-  describe("when chaining a fragment on top of a base fragment", () => {
-    it("returns an endpoint with both URL fragments", () => {
-      expect(endpoint("foo").fragment("bar")).toEqual(
-        new SafeAPI.Snoc({
-          previous: new SafeAPI.Snoc({
-            previous: new SafeAPI.Nil(),
-            middleware: new SafeAPI.Fragment("foo")
-          }),
-          middleware: new SafeAPI.Fragment("bar")
-        })
-      );
-    });
-
-    // type-level tests
-    () => {
-      // ok
-      (endpoint("foo").fragment("bar"): SafeAPI.Endpoint<{}, string>);
-
-      // $FlowFixMe
-      (endpoint("foo").fragment("bar"): SafeAPI.Endpoint<
-        { foo: string },
-        string
-      >);
+      (endpoint().fragment("foo"): SafeAPI.Endpoint<{ foo: string }, string>);
     };
   });
 });
