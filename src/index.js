@@ -1,10 +1,10 @@
 // @flow
 
-type ServerData<I: {}> = {
+export type ServerData<I: {}> = {
   url: string
 };
 
-type ClientData<I: {}> = {
+export type ClientData<I: {}> = {
   url: string
 };
 

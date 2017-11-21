@@ -9,7 +9,8 @@ export function safeGet<I: {}, O>(
   endpoint: SafeAPI.Endpoint<I, O>,
   handler: Handler<I, O>
 ): KoaMiddleware {
-  const { url } = SafeAPI.extractServerData(endpoint);
+  const serverData: SafeAPI.ServerData<I> = SafeAPI.extractServerData(endpoint);
+  const { url } = serverData;
   return KoaRoute.get(url, async (context, next) => {
     const input: any = {};
     const output = await handler(input);
