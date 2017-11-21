@@ -1,7 +1,2 @@
 # safe-api
-
-## setup
-
-- install node 8.7.0
-- install yarn 1.3.2
-- `yarn install`
+A declarative, type-safe API library for seamlessly bridging client and server code.
