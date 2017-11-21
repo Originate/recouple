@@ -26,7 +26,7 @@ function withSafeServer(
 }
 
 it(
-  "should be able to generate a server for a hello world endpoint",
+  "should be able to generate a server for a GET endpoint",
   withSafeServer(async ({ server }) => {
     const resp = await fetch(`http://localhost:${server.address().port}/hello`);
     const json = await resp.json();
@@ -35,7 +35,7 @@ it(
 );
 
 it(
-  "should be able to generate a compatible client for a hello world endpoint",
+  "should be able to generate a compatible client for a GET endpoint",
   withSafeServer(async ({ endpoint, server }) => {
     const absoluteEndpoint: SafeAPI.Endpoint<{}, string> = new SafeAPI.Cons({
       middleware: new SafeAPI.PrependFragmentClient(
