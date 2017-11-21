@@ -26,14 +26,14 @@ function makeSafeServer(): {
 }
 
 describe("for a GET endpoint with no parameters", () => {
-  it("should be able to generate a server for a GET endpoint", async () => {
+  it("should be able to generate a server", async () => {
     const { server } = makeSafeServer();
     const resp = await fetch(`http://localhost:${server.address().port}/hello`);
     const json = await resp.json();
     expect(json).toBe("world");
   });
 
-  it("should be able to generate a compatible client for a GET endpoint", async () => {
+  it("should be able to generate a compatible client", async () => {
     const { server, endpoint } = makeSafeServer();
     const absoluteEndpoint: SafeAPI.Endpoint<{}, string> = new SafeAPI.Cons({
       middleware: new SafeAPI.PrependFragmentClient(
@@ -84,8 +84,11 @@ describe("for a GET endpoint with no parameters", () => {
 // Client type tests
 () => {
   const endpoint: SafeAPI.Endpoint<{}, string> = new SafeAPI.Cons({
-    middleware: new SafeAPI.Fragment("/hello"),
-    next: new SafeAPI.Nil()
+    middleware: new SafeAPI.PrependFragmentClient("http://localhost:8080"),
+    next: new SafeAPI.Cons({
+      middleware: new SafeAPI.Fragment("/hello"),
+      next: new SafeAPI.Nil()
+    })
   });
 
   // it permits correct output types in handlers

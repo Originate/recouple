@@ -2,18 +2,18 @@
 
 type ServerData<I: {}> = {
   url: string
-}
+};
 
 type ClientData<I: {}> = {
-  url: I => string,
-}
+  url: I => string
+};
 
 interface Middleware<I_old: {}, I: {}> {
-  mapServerData(input: ServerData<I_old>): ServerData<I>,
-  mapClientData(input: ClientData<I_old>): ClientData<I>
+  mapServerData(input: ServerData<I_old>): ServerData<I>;
+  mapClientData(input: ClientData<I_old>): ClientData<I>;
 }
 
-export class Fragment<I: {}> implements Middleware<I,  I> {
+export class Fragment<I: {}> implements Middleware<I, I> {
   urlFragment: string;
   constructor(urlFragment: string) {
     this.urlFragment = urlFragment;
@@ -38,7 +38,7 @@ export class PrependFragmentClient<I: {}> implements Middleware<I, I> {
     this.urlFragment = urlFragment;
   }
   mapServerData(serverData: ServerData<I>): ServerData<I> {
-    return serverData
+    return serverData;
   }
   mapClientData(clientData: ClientData<I>): ClientData<I> {
     return {
@@ -62,12 +62,11 @@ export class Cons<I_old: {}, O_old, I: {}, O> implements Endpoint<I, O> {
   }
 }
 
-export class Nil<O> implements Endpoint<{}, O> {
-}
+export class Nil<O> implements Endpoint<{}, O> {}
 
-
-
-export function extractServerData<I: {}>(endpoint: Endpoint<I, *>): ServerData<I> {
+export function extractServerData<I: {}>(
+  endpoint: Endpoint<I, *>
+): ServerData<I> {
   if (endpoint instanceof Cons) {
     const { next, middleware } = endpoint.data;
     return middleware.mapServerData(extractServerData(next));
@@ -78,7 +77,9 @@ export function extractServerData<I: {}>(endpoint: Endpoint<I, *>): ServerData<I
   }
 }
 
-export function extractClientData<I: {}>(endpoint: Endpoint<I, *>): ClientData<I> {
+export function extractClientData<I: {}>(
+  endpoint: Endpoint<I, *>
+): ClientData<I> {
   if (endpoint instanceof Cons) {
     const { next, middleware } = endpoint.data;
     return middleware.mapClientData(extractClientData(next));

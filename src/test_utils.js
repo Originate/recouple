@@ -8,6 +8,6 @@ afterEach(() => {
   }
 });
 
-export function cleanupWith(fn: () => any)  {
+export function cleanupWith(fn: () => any) {
   _cleanupFns.push(fn);
 }
