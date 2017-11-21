@@ -5,7 +5,7 @@ type ServerData<I: {}> = {
 };
 
 type ClientData<I: {}> = {
-  url: I => string
+  url: string
 };
 
 interface Middleware<I_old: {}, I: {}> {
@@ -27,7 +27,7 @@ export class Fragment<I: {}> implements Middleware<I, I> {
   mapClientData(clientData: ClientData<I>): ClientData<I> {
     return {
       ...clientData,
-      url: input => `${clientData.url(input)}${this.urlFragment}`
+      url: `${clientData.url}${this.urlFragment}`
     };
   }
 }
@@ -43,7 +43,7 @@ export class PrependFragmentClient<I: {}> implements Middleware<I, I> {
   mapClientData(clientData: ClientData<I>): ClientData<I> {
     return {
       ...clientData,
-      url: input => `${this.urlFragment}${clientData.url(input)}`
+      url: `${this.urlFragment}${clientData.url}`
     };
   }
 }
@@ -85,7 +85,7 @@ export function extractClientData<I: {}>(
     return middleware.mapClientData(extractClientData(next));
   } else {
     return {
-      url: () => ""
+      url: ""
     };
   }
 }
