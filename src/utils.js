@@ -1,9 +1,6 @@
 // @flow
 
-type StringExpansion<O> = (
-  first: string | Array<string>,
-  ...values: Array<any>
-) => O;
+export type StringExpansion<O> = (first: string | Array<string>, ...args: Array<any>) => O;
 
 export function stringExpansion<O>(f: string => O): StringExpansion<O> {
   return (first, ...args) => {

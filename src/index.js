@@ -1,4 +1,6 @@
 // @flow
+import { stringExpansion } from "./utils";
+import type { StringExpansion } from "./utils";
 
 export type ServerData<I: {}> = {
   url: string
@@ -32,21 +34,37 @@ export class Fragment<I: {}> implements Middleware<I, I> {
   }
 }
 
-export interface Endpoint<I: {}, O> {}
+export interface Endpoint<I: {}, O> {
+  append<I_new: {}>(middleware: Middleware<I, I_new>): Endpoint<I_new, O>;
+  fragment(first: string | Array<string>, ...args: Array<any>): Endpoint<I, O>;
+}
+
+export class EndpointImpl<I: {}, O> implements Endpoint<I, O> {
+  constructor() {}
+  append<I_new: {}>(middleware: Middleware<I, I_new>): Endpoint<I_new, O> {
+    return new Snoc({ previous: this, middleware });
+  }
+
+  fragment(first: string | Array<string>, ...args: Array<any>): Endpoint<I, O> {
+    const urlFragment = stringExpansion(x => x)(first, ...args);
+    return this.append(new Fragment(urlFragment));
+  }
+}
 
 type SnocData<I_old: {}, O_old, I: {}> = {
   previous: Endpoint<I_old, O_old>,
   middleware: Middleware<I_old, I>
 };
 
-export class Snoc<I_old: {}, O_old, I: {}, O> implements Endpoint<I, O> {
+export class Snoc<I_old: {}, O_old, I: {}, O> extends EndpointImpl<I, O> {
   data: SnocData<I_old, O_old, I>;
   constructor(data: SnocData<I_old, O_old, I>) {
+    super();
     this.data = data;
   }
 }
 
-export class Nil<O> implements Endpoint<{}, O> {}
+export class Nil<O> extends EndpointImpl<{}, O> {}
 
 export function extractServerData<I: {}>(
   endpoint: Endpoint<I, *>
@@ -67,5 +85,16 @@ export function extractClientData<I: {}>(
     return middleware.mapClientData(extractClientData(previous));
   } else {
     return { url: "" };
+  }
+}
+
+export function endpoint<O>(
+  first: void | string | Array<string>,
+  ...args: Array<any>
+): Endpoint<{}, O> {
+  if (typeof first === "undefined") {
+    return new Nil();
+  } else {
+    return endpoint().fragment(first, ...args);
   }
 }

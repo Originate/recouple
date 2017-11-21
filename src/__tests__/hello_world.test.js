@@ -10,13 +10,7 @@ function makeSafeServer(): {
   server: *,
   endpoint: SafeAPI.Endpoint<{}, string>
 } {
-  const endpoint: SafeAPI.Endpoint<{}, string> = new SafeAPI.Snoc({
-    previous: new SafeAPI.Snoc({
-      previous: new SafeAPI.Nil(),
-      middleware: new SafeAPI.Fragment("hello")
-    }),
-    middleware: new SafeAPI.Fragment("world")
-  });
+  const endpoint: SafeAPI.Endpoint<{}, string> = SafeAPI.endpoint`hello`.fragment`world`;
   const app = new Koa();
   app.use(
     Server.safeGet(endpoint, async () => {
@@ -51,13 +45,7 @@ describe("for a GET endpoint with no parameters", () => {
 
 // Server type tests
 () => {
-  const endpoint: SafeAPI.Endpoint<{}, string> = new SafeAPI.Snoc({
-    previous: new SafeAPI.Snoc({
-      previous: new SafeAPI.Nil(),
-      middleware: new SafeAPI.Fragment("hello")
-    }),
-    middleware: new SafeAPI.Fragment("world")
-  });
+  const endpoint: SafeAPI.Endpoint<{}, string> = SafeAPI.endpoint`hello`.fragment`world`;
   const app = new Koa();
 
   // it permits correct output types in handlers
@@ -90,13 +78,7 @@ describe("for a GET endpoint with no parameters", () => {
 // Client type tests
 () => {
   const baseURL = "http://localhost:8080";
-  const endpoint: SafeAPI.Endpoint<{}, string> = new SafeAPI.Snoc({
-    previous: new SafeAPI.Snoc({
-      previous: new SafeAPI.Nil(),
-      middleware: new SafeAPI.Fragment("hello")
-    }),
-    middleware: new SafeAPI.Fragment("world")
-  });
+  const endpoint: SafeAPI.Endpoint<{}, string> = SafeAPI.endpoint`hello`.fragment`world`;
 
   // it permits correct output types in handlers
   // ok
