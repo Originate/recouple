@@ -3,8 +3,8 @@ import * as SafeAPI from "../";
 import * as Client from "../client";
 import * as Server from "../server";
 import * as TestUtils from "../test_utils";
-import fetch from "isomorphic-fetch";
 import Koa from "koa";
+import fetch from "isomorphic-fetch";
 
 const testEndpoint: SafeAPI.Endpoint<{}, string> = SafeAPI.endpoint()
   .fragment("hello")

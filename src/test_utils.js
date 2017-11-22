@@ -8,7 +8,9 @@ jest.mock("isomorphic-fetch", () => {
   return jest.fn(fetch);
 });
 
-jest.resetAllMocks();
+afterEach(() => {
+  jest.clearAllMocks();
+});
 
 const _cleanupFns: Array<() => any> = [];
 afterEach(() => {
