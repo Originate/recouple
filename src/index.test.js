@@ -8,9 +8,9 @@ it("works", () => {
     .use({ queryParams: SafeAPI.queryParams })
     .use({ fragment: SafeAPI.fragment });
 
-  const myEndpoint: SafeAPI.Endpoint<*, { foo: string}, string> = endpoint()
+  const myEndpoint: SafeAPI.Endpoint<*, { foo: string }, string> = endpoint()
     .fragment("hello")
-    .queryParams({ foo: t.string })
+    .queryParams({ foo: t.string });
 
   console.log(JSON.stringify(myEndpoint, null, 2));
 });
@@ -26,8 +26,8 @@ it("works", () => {
   // ok
   const myEndpoint: SafeAPI.Endpoint<*, { foo: string }, string> = endpoint()
     .fragment("hello")
-    .queryParams({ foo: t.string })
-}
+    .queryParams({ foo: t.string });
+};
 
 // error when using a nonexistent middleware
 () => {
@@ -35,8 +35,8 @@ it("works", () => {
 
   const myEndpoint: SafeAPI.Endpoint<*, {}, string> = endpoint()
     // $FlowFixMe
-    .fragment("hello")
-}
+    .fragment("hello");
+};
 
 // error with invalid input type annotation
 () => {
@@ -47,8 +47,8 @@ it("works", () => {
   // $FlowFixMe
   const myEndpoint: SafeAPI.Endpoint<*, {}, string> = endpoint()
     .fragment("hello")
-    .queryParams({ foo: t.string })
-}
+    .queryParams({ foo: t.string });
+};
 
 // error with invalid input type annotation
 () => {
@@ -57,6 +57,9 @@ it("works", () => {
     .use({ fragment: SafeAPI.fragment });
 
   // $FlowFixMe
-  const myEndpoint: SafeAPI.Endpoint<*, { foo: string }, string> = endpoint()
-    .fragment("hello")
-}
+  const myEndpoint: SafeAPI.Endpoint<
+    *,
+    { foo: string },
+    string
+  > = endpoint().fragment("hello");
+};

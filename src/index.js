@@ -158,16 +158,24 @@ type ExtractConstructors<E, I, O> = ExtractConstructorsF<
   ExtractConstructors<E, I, O>
 >;
 
-function extractConstructors<E: {}>(middlewareFns: E): <I: {}, O>(() => Endpoint<*, I, O>) => ExtractConstructors<E, I, O> {
-  const foo = function<I: {}, O> (endpointThunk: () => Endpoint<*, I, O>): ExtractConstructors<E, I, O> {
+function extractConstructors<E: {}>(
+  middlewareFns: E
+): <I: {}, O>(() => Endpoint<*, I, O>) => ExtractConstructors<E, I, O> {
+  const foo = function<I: {}, O>(
+    endpointThunk: () => Endpoint<*, I, O>
+  ): ExtractConstructors<E, I, O> {
     const constructors = {};
     for (const key of Object.keys(middlewareFns)) {
       const middlewareFn = middlewareFns[key];
-      constructors[key] = payload => snoc(foo, { previous: endpointThunk(), middleware: middlewareFn(payload)});
+      constructors[key] = payload =>
+        snoc(foo, {
+          previous: endpointThunk(),
+          middleware: middlewareFn(payload)
+        });
     }
     return constructors;
-  }
-  return foo
+  };
+  return foo;
 }
 
 type SnocData<E: {}, I_old: {}, O_old, I: {}> = {
@@ -212,7 +220,9 @@ function snoc<E: {}, I_old: {}, O_old, I: {}, O>(
   return endpoint;
 }
 
-function nil<E: {}, I: {}, O>(constructors: (() => Endpoint<E, I, O>) => E): Nil<E, I, O> {
+function nil<E: {}, I: {}, O>(
+  constructors: (() => Endpoint<E, I, O>) => E
+): Nil<E, I, O> {
   const endpoint = {
     ...constructors(() => endpoint),
     type: "Nil"
