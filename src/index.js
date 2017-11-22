@@ -1,5 +1,6 @@
 // @flow
 import { TypeRep } from "./type_rep";
+
 export type ServerData<I: {}> = {
   url: string,
   queryParams: { [string]: TypeRep<any> }
