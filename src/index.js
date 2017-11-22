@@ -11,12 +11,13 @@ export type ClientData<I: {}> = {
   queryParams: { [string]: TypeRep<any> }
 };
 
-interface Middleware<I_old: {}, I: {}> {
+interface Middleware<I_old: {}, I: {}, Payload> {
+  constructor(p: Payload): *;
   mapServerData(input: ServerData<I_old>): ServerData<I>;
   mapClientData(input: ClientData<I_old>): ClientData<I>;
 }
 
-export class Fragment<I: {}> implements Middleware<I, I> {
+export class Fragment<I: {}> implements Middleware<I, I, string> {
   urlFragment: string;
   constructor(urlFragment: string) {
     this.urlFragment = urlFragment;
@@ -39,7 +40,7 @@ type $Merge<A: {}, B: {}> = { ...$Exact<A>, ...$Exact<B> };
 type $ExtractTypes<O: {}> = $ObjMap<O, <V>(TypeRep<V>) => V>;
 
 export class QueryParams<I: {}, P: {}>
-  implements Middleware<I, $Merge<I, $ExtractTypes<P>>> {
+  implements Middleware<I, $Merge<I, $ExtractTypes<P>>, P> {
   params: P;
   constructor(params: P) {
     this.params = params;
@@ -58,8 +59,9 @@ export class QueryParams<I: {}, P: {}>
   }
 }
 
+/**
 export interface Endpoint<I: {}, O> {
-  append<I_new: {}>(middleware: Middleware<I, I_new>): Endpoint<I_new, O>;
+  append<I_new: {}>(middleware: Middleware<I, I_new, *>): Endpoint<I_new, O>;
   fragment(urlFragment: string): Endpoint<I, O>;
   queryParams<P: {}>(params: P): Endpoint<$Merge<I, $ExtractTypes<P>>, O>;
 }
@@ -118,4 +120,34 @@ export function extractClientData<I: {}>(
 
 export function endpoint<O>(): Endpoint<{}, O> {
   return new Nil();
+}
+**/
+
+type Aux<I_old, I_new, M: Middleware<I_old, I_new>> = I_new;
+type $ExtractINew<I, M> = Aux<I, *, M>;
+
+type Loop<E> = $ObjMap<
+  E,
+  <Mid>(
+    Mid
+  ) => <I, O>(
+    EndpointObject<E, I, O>
+  ) => EndpointObject<E, $ExtractINew<I, Mid>, O>
+>;
+
+export type EndpointObject<E, I: {}, O> = {
+};
+
+type EndpointCreator<E: {}, I: {}, O> = {
+  use: <M: {}>(M) => EndpointCreator<$Merge<E, M>, I, O>,
+  ...$Exact<E>,
+}
+
+export function basic<O>(): EndpointCreator<{}, {}, O> {
+  const foo = {
+    use: (middlewareObj) => {
+      return (1: any);
+    }
+  };
+  return foo;
 }

@@ -1,4 +1,3 @@
-// @flow
 import * as SafeAPI from "../";
 import * as Client from "../client";
 import * as Server from "../server";
