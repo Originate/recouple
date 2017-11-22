@@ -24,13 +24,13 @@ const testEndpoint: SafeAPI.Endpoint<
     last: T.string
   });
 
-const testHandler = async input => {
+const testHandler = jest.fn(async input => {
   return {
     first: input.first,
     last: input.last,
     full: `${input.first} ${input.last}`
   };
-};
+});
 
 describe("for a GET endpoint with no parameters", () => {
   it("should be able to generate a server", async () => {
@@ -59,7 +59,7 @@ describe("for a GET endpoint with no parameters", () => {
     expect(resp).toEqual({ first: "First", last: "Last", full: "First Last" });
   });
 
-  it("does not serialize extraneous queryStrings", async () => {
+  test("client does not serialize extraneous query params", async () => {
     const server = TestUtils.makeServer({
       endpoint: testEndpoint,
       handler: testHandler
@@ -74,6 +74,22 @@ describe("for a GET endpoint with no parameters", () => {
     await Client.safeGet(baseURL, testEndpoint, input);
     const expectedURL = `${baseURL}/foo?first=First&last=Last`;
     expect(fetch).toHaveBeenLastCalledWith(expectedURL);
+  });
+
+  test("server ignores extraneous query params", async () => {
+    const server = TestUtils.makeServer({
+      endpoint: testEndpoint,
+      handler: testHandler
+    });
+    await fetch(
+      `http://localhost:${
+        server.address().port
+      }/foo?first=First&last=Last&foo=Bar`
+    );
+    expect(testHandler).toHaveBeenLastCalledWith({
+      first: "First",
+      last: "Last"
+    });
   });
 });
 

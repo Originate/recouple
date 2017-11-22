@@ -11,12 +11,16 @@ export function safeGet<I: {}, O>(
   handler: Handler<I, O>
 ): KoaMiddleware {
   const serverData: SafeAPI.ServerData<I> = SafeAPI.extractServerData(endpoint);
-  const { url } = serverData;
+  const { url, queryParams: queryParamsRep } = serverData;
   return KoaRoute.get(url, async (context, next) => {
     const input: any = {};
 
-    const queryObj = queryString.parse(context.request.querystring);
-    Object.assign(input, queryObj);
+    if (Object.keys(queryParamsRep).length > 0) {
+      const rawQueryParams = queryString.parse(context.request.querystring);
+      for (const key of Object.keys(queryParamsRep)) {
+        input[key] = rawQueryParams[key];
+      }
+    }
 
     const output = await handler(input);
     context.type = "application/json";
