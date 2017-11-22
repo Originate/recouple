@@ -21,8 +21,7 @@ const testEndpoint: SafeAPI.Endpoint<
   });
 
 const testHandler = async input => {
-  (input: { x: string, y: string });
-  return "foo";
+  return `${input.x} ${input.y}`;
 };
 
 describe("for an endpoint with multiple queryString middleware", () => {
