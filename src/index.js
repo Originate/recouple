@@ -141,29 +141,40 @@ export function endpoint<O>(): Endpoint<{}, O> {
  *   ) => EndpointObject<E, $ExtractINew<I, Mid>, O>
  * >;*/
 
+/*
+   E := Extracted constructors object
+   M := MiddlewareFns object type
+   I := input type
+   O := output type
+*/
+
 type Aux<I_old, I_new, M: Middleware<I_old, I_new, *>> = I_new;
 type $ExtractINew<I, M> = Aux<I, *, M>;
 
 type Fn<I, O> = I => O;
 
-type ExtractConstructorsF<E, I, O, Recursive> = $ObjMap<
-  E,
+type ExtractedConstructorsF<M, I, O, Recursive> = $ObjMap<
+  M,
   <P, Mid>(Fn<P, Mid>) => P => Endpoint<Recursive, $ExtractINew<I, Mid>, O>
 >;
 
-type ExtractConstructors<E, I, O> = ExtractConstructorsF<
-  E,
+type ExtractedConstructors<M, I, O> = ExtractedConstructorsF<
+  M,
   I,
   O,
-  ExtractConstructors<E, I, O>
+  ExtractedConstructors<M, I, O>
 >;
 
-function extractConstructors<E: {}>(
-  middlewareFns: E
-): <I: {}, O>(() => Endpoint<*, I, O>) => ExtractConstructors<E, I, O> {
+type PartiallyExtractedConstructors<M, I, O> = (
+  () => Endpoint<*, I, O>
+) => ExtractedConstructors<M, I, O>;
+
+function partiallyExtractConstructors<M: {}>(
+  middlewareFns: M
+): PartiallyExtractedConstructors<M, *, *> {
   const foo = function<I: {}, O>(
     endpointThunk: () => Endpoint<*, I, O>
-  ): ExtractConstructors<E, I, O> {
+  ): ExtractedConstructors<M, I, O> {
     const constructors = {};
     for (const key of Object.keys(middlewareFns)) {
       const middlewareFn = middlewareFns[key];
@@ -196,24 +207,26 @@ type Nil<E: {}, I: {}, O> = {
   type: "Nil"
 };
 
-type EndpointCreator<E: {}> = {
-  (): Endpoint<ExtractConstructors<E, {}, *>, {}, *>,
-  use: <M: {}>(M) => EndpointCreator<$Merge<E, M>>,
-  data: E
+type EndpointCreator<M: {}> = {
+  (): Endpoint<ExtractedConstructors<M, {}, *>, {}, *>,
+  use: <M_additional: {}>(
+    M_additional
+  ) => EndpointCreator<$Merge<M, M_additional>>,
+  data: M // TODO: rename
 };
 
-type CreatorSnoc = <E: {}, M: {}>(
-  EndpointCreator<E>,
-  M
-) => EndpointCreator<$Merge<E, M>>;
+type CreatorSnoc = <M: {}, M_additional: {}>(
+  EndpointCreator<M>,
+  M_additional
+) => EndpointCreator<$Merge<M, M_additional>>;
 type CreatorNil = () => EndpointCreator<{}>;
 
 function snoc<E: {}, I_old: {}, O_old, I: {}, O>(
-  constructors: (() => Snoc<E, I_old, O_old, I, O>) => E,
+  extractConstructors: PartiallyExtractedConstructors<E, I, O>,
   data: SnocData<E, I_old, O_old, I>
 ): Snoc<E, I_old, O_old, I, O> {
   const endpoint = {
-    ...constructors(() => endpoint),
+    ...extractConstructors(() => endpoint),
     type: "Snoc",
     data
   };
@@ -221,18 +234,19 @@ function snoc<E: {}, I_old: {}, O_old, I: {}, O>(
 }
 
 function nil<E: {}, I: {}, O>(
-  constructors: (() => Endpoint<E, I, O>) => E
+  extractConstructors: PartiallyExtractedConstructors<E, I, O>
 ): Nil<E, I, O> {
   const endpoint = {
-    ...constructors(() => endpoint),
+    ...extractConstructors(() => endpoint),
     type: "Nil"
   };
   return endpoint;
 }
 
+// TODO: remove any
 const grow: CreatorSnoc = ((last, middlewareObject) => {
   const endpointCreator = () => {
-    return nil(extractConstructors(endpointCreator.data));
+    return nil(partiallyExtractConstructors(endpointCreator.data));
   };
   endpointCreator.data = { ...last.data, ...middlewareObject };
   endpointCreator.use = nextMiddlewareObject => {
@@ -241,9 +255,10 @@ const grow: CreatorSnoc = ((last, middlewareObject) => {
   return endpointCreator;
 }: any);
 
+// TODO: remove any
 export const safeAPI: CreatorNil = (() => {
   const endpointCreator = () => {
-    return nil(extractConstructors(endpointCreator.data));
+    return nil(partiallyExtractConstructors(endpointCreator.data));
   };
   endpointCreator.data = {};
   endpointCreator.use = middlewareObject => {

@@ -56,9 +56,9 @@ it("works", () => {
     .use({ queryParams: SafeAPI.queryParams })
     .use({ fragment: SafeAPI.fragment });
 
-  // $FlowFixMe
   const myEndpoint: SafeAPI.Endpoint<
     *,
+    // $FlowFixMe
     { foo: string },
     string
   > = endpoint().fragment("hello");
