@@ -35,6 +35,9 @@ export class Fragment<I: {}> implements Middleware<I, I, string> {
     };
   }
 }
+export function fragment<I: {}>(urlFragment: string): Fragment<I> {
+  return new Fragment(urlFragment);
+}
 
 type $Merge<A: {}, B: {}> = { ...$Exact<A>, ...$Exact<B> };
 type $ExtractTypes<O: {}> = $ObjMap<O, <V>(TypeRep<V>) => V>;
@@ -57,6 +60,9 @@ export class QueryParams<I: {}, P: {}>
       queryParams: { ...clientData.queryParams, ...this.params }
     };
   }
+}
+export function queryParams<I: {}, P: {}>(params: P): QueryParams<I, P> {
+  return new QueryParams(params);
 }
 
 /**
@@ -123,31 +129,110 @@ export function endpoint<O>(): Endpoint<{}, O> {
 }
 **/
 
-type Aux<I_old, I_new, M: Middleware<I_old, I_new>> = I_new;
+/* type Aux<I_old, I_new, M: Middleware<I_old, I_new>> = I_new;
+ * type $ExtractINew<I, M> = Aux<I, *, M>;
+ *
+ * type Loop<E> = $ObjMap<
+ *   E,
+ *   <Mid>(
+ *     Mid
+ *   ) => <I, O>(
+ *     EndpointObject<E, I, O>
+ *   ) => EndpointObject<E, $ExtractINew<I, Mid>, O>
+ * >;*/
+
+type Aux<I_old, I_new, M: Middleware<I_old, I_new, *>> = I_new;
 type $ExtractINew<I, M> = Aux<I, *, M>;
 
-type Loop<E> = $ObjMap<
+type Fn<I, O> = I => O;
+
+type ExtractConstructorsF<E, Recursive> = $ObjMap<
   E,
-  <Mid>(
-    Mid
-  ) => <I, O>(
-    EndpointObject<E, I, O>
-  ) => EndpointObject<E, $ExtractINew<I, Mid>, O>
+  <I, O, P, Mid>(Fn<P, Mid>) => P => Endpoint<Recursive, $ExtractINew<I, Mid>, O>
 >;
 
-export type EndpointObject<E, I: {}, O> = {
+type ExtractConstructors<E> = ExtractConstructorsF<
+  E,
+  ExtractConstructors<E>
+>;
+
+function extractConstructors<E: {}>(middlewareFns: E, endpointThunk: () => Endpoint<*, *, *>): ExtractConstructors<E> {
+  const constructors = {};
+  for (const key of Object.keys(middlewareFns)) {
+    const middlewareFn = middlewareFns[key];
+    constructors[key] = payload => snoc(constructors, { previous: endpointThunk(), middleware: middlewareFn(payload)});
+  }
+  return constructors;
+}
+
+type SnocData<E: {}, I_old: {}, O_old, I: {}> = {
+  previous: Endpoint<E, I_old, O_old>,
+  middleware: Middleware<I_old, I>
 };
 
-type EndpointCreator<E: {}, I: {}, O> = {
-  use: <M: {}>(M) => EndpointCreator<$Merge<E, M>, I, O>,
+export type Endpoint<E, I: {}, O> = Snoc<E, *, *, I, O> | Nil<*, I, O>;
+
+type Snoc<E: {}, I_old: {}, O_old, I: {}, O> = {
   ...$Exact<E>,
+  type: "Snoc",
+  data: SnocData<E, I_old, O_old, I>
+};
+
+type Nil<E: {}, I: {}, O> = {
+  ...$Exact<E>,
+  type: "Nil"
+};
+
+type EndpointCreator<E: {}> = {
+  (): Endpoint<ExtractConstructors<E>, {}, *>,
+  use: <M: {}>(M) => EndpointCreator<$Merge<E, M>>,
+  data: E
+};
+
+type CreatorSnoc = <E: {}, M: {}>(
+  EndpointCreator<E>,
+  M
+) => EndpointCreator<$Merge<E, M>>;
+type CreatorNil = () => EndpointCreator<{}>;
+
+function snoc<E: {}, I_old: {}, O_old, I: {}, O>(
+  constructors: E,
+  data: SnocData<E, I_old, O_old, I>
+): Snoc<E, I_old, O_old, I, O> {
+  return {
+    ...constructors,
+    type: "Snoc",
+    data
+  };
 }
 
-export function basic<O>(): EndpointCreator<{}, {}, O> {
-  const foo = {
-    use: (middlewareObj) => {
-      return (1: any);
-    }
+function nil<E: {}, I: {}, O>(constructors: E): Nil<E, I, O> {
+  return {
+    ...constructors,
+    type: "Nil"
   };
-  return foo;
 }
+
+const grow: CreatorSnoc = ((last, middlewareObject) => {
+  const endpointCreator = () => {
+    const endpoint = nil(extractConstructors(endpointCreator.data, () => endpoint));
+    return endpoint;
+  };
+  endpointCreator.data = { ...last.data, ...middlewareObject };
+  endpointCreator.use = nextMiddlewareObject => {
+    return (grow: any)(endpointCreator, nextMiddlewareObject);
+  };
+  return endpointCreator;
+}: any);
+
+export const safeAPI: CreatorNil = (() => {
+  const endpointCreator = () => {
+    const endpoint = nil(extractConstructors(endpointCreator.data, () => endpoint));
+    return endpoint;
+  };
+  endpointCreator.data = {};
+  endpointCreator.use = middlewareObject => {
+    return (grow: any)(endpointCreator, middlewareObject);
+  };
+  return endpointCreator;
+}: any);
