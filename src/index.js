@@ -11,6 +11,47 @@ export type ClientData<I: {}> = {
   queryParams: { [string]: TypeRep<any> }
 };
 
+type Visitor<Data> = {|
+  handleFragment: (urlFragment: string) => (previous: Data) => Data,
+  handleQueryParams: <P: {}>(queryParams: P) => (previous: Data) => Data,
+  handleNil: () => Data
+|};
+
+// type MiddlewareMono = Middleware<*, *, *>;
+
+export function visitMiddleware<Data>(
+  visitor: Visitor<Data>,
+  middleware: Middleware<*, *, *>
+): Data => Data {
+  {
+    const m = (middleware: Middleware<*, *, *>);
+    if (m instanceof Fragment) {
+      return visitor.handleFragment(m.payload);
+    }
+  }
+  {
+    const m = (middleware: Middleware<*, *, *>);
+    if (m instanceof QueryParams) {
+      return visitor.handleQueryParams(m.payload);
+    }
+  }
+  throw "no other case";
+}
+
+export function visitEndpoint<Data, I: {}, O>(
+  visitor: Visitor<Data>,
+  endpoint: Endpoint<I, O>
+): Data {
+  if (endpoint instanceof Snoc) {
+    const { previous, middleware } = endpoint.data;
+    return visitMiddleware(visitor, middleware)(
+      visitEndpoint(visitor, previous)
+    );
+  } else {
+    return visitor.handleNil();
+  }
+}
+
 class Middleware<I_old: {}, I: {}, Payload> {
   payload: Payload;
   constructor(payload: Payload) {
