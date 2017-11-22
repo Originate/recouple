@@ -142,13 +142,22 @@ export function endpoint<O>(): Endpoint<{}, O> {
  * >;*/
 
 /*
+   Type parameter dictionary
+
    E := Extracted constructors object
    M := MiddlewareFns object type
    I := input type
    O := output type
 */
 
+/*
+   Constructor Extraction
+
+   M gets extracted to E
+*/
+
 type Aux<I_old, I_new, M: Middleware<I_old, I_new, *>> = I_new;
+
 type $ExtractINew<I, M> = Aux<I, *, M>;
 
 type Fn<I, O> = I => O;
@@ -165,36 +174,47 @@ type ExtractedConstructors<M, I, O> = ExtractedConstructorsF<
   ExtractedConstructors<M, I, O>
 >;
 
-type PartiallyExtractedConstructors<M, I, O> = (
-  () => Endpoint<*, I, O>
+type PartiallyExtractedConstructorsF<M, I, O, Recursive> = (
+  () => Endpoint<Recursive, I, O>
 ) => ExtractedConstructors<M, I, O>;
+
+type PartiallyExtractedConstructors<M, I, O> = PartiallyExtractedConstructorsF<
+  M,
+  I,
+  O,
+  PartiallyExtractedConstructors<M, I, O>
+>;
 
 function partiallyExtractConstructors<M: {}>(
   middlewareFns: M
 ): PartiallyExtractedConstructors<M, *, *> {
-  const foo = function<I: {}, O>(
+  const extractConstructors = function<I: {}, O>(
     endpointThunk: () => Endpoint<*, I, O>
   ): ExtractedConstructors<M, I, O> {
     const constructors = {};
     for (const key of Object.keys(middlewareFns)) {
       const middlewareFn = middlewareFns[key];
       constructors[key] = payload =>
-        snoc(foo, {
+        snoc(extractConstructors, {
           previous: endpointThunk(),
           middleware: middlewareFn(payload)
         });
     }
     return constructors;
   };
-  return foo;
+  return extractConstructors;
 }
+
+/*
+   Endpoints
+*/
+
+export type Endpoint<E, I: {}, O> = Snoc<E, *, *, I, O> | Nil<*, I, O>;
 
 type SnocData<E: {}, I_old: {}, O_old, I: {}> = {
   previous: Endpoint<E, I_old, O_old>,
   middleware: Middleware<I_old, I>
 };
-
-export type Endpoint<E, I: {}, O> = Snoc<E, *, *, I, O> | Nil<*, I, O>;
 
 type Snoc<E: {}, I_old: {}, O_old, I: {}, O> = {
   ...$Exact<E>,
@@ -206,20 +226,6 @@ type Nil<E: {}, I: {}, O> = {
   ...$Exact<E>,
   type: "Nil"
 };
-
-type EndpointCreator<M: {}> = {
-  (): Endpoint<ExtractedConstructors<M, {}, *>, {}, *>,
-  use: <M_additional: {}>(
-    M_additional
-  ) => EndpointCreator<$Merge<M, M_additional>>,
-  data: M // TODO: rename
-};
-
-type CreatorSnoc = <M: {}, M_additional: {}>(
-  EndpointCreator<M>,
-  M_additional
-) => EndpointCreator<$Merge<M, M_additional>>;
-type CreatorNil = () => EndpointCreator<{}>;
 
 function snoc<E: {}, I_old: {}, O_old, I: {}, O>(
   extractConstructors: PartiallyExtractedConstructors<E, I, O>,
@@ -242,6 +248,24 @@ function nil<E: {}, I: {}, O>(
   };
   return endpoint;
 }
+
+/*
+   Endpoint Creators
+*/
+
+type EndpointCreator<M: {}> = {
+  (): Endpoint<ExtractedConstructors<M, {}, *>, {}, *>,
+  use: <M_additional: {}>(
+    M_additional
+  ) => EndpointCreator<$Merge<M, M_additional>>,
+  data: M // TODO: rename
+};
+
+type CreatorSnoc = <M: {}, M_additional: {}>(
+  EndpointCreator<M>,
+  M_additional
+) => EndpointCreator<$Merge<M, M_additional>>;
+type CreatorNil = () => EndpointCreator<{}>;
 
 // TODO: remove any
 const grow: CreatorSnoc = ((last, middlewareObject) => {
