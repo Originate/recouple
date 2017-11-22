@@ -144,7 +144,7 @@ export function endpoint<O>(): Endpoint<{}, O> {
 /*
    Type parameter dictionary
 
-   E := Extracted constructors object
+   E := Extracted constructors object type
    M := MiddlewareFns object type
    I := input type
    O := output type
@@ -213,7 +213,7 @@ export type Endpoint<E, I: {}, O> = Snoc<E, *, *, I, O> | Nil<*, I, O>;
 
 type SnocData<E: {}, I_old: {}, O_old, I: {}> = {
   previous: Endpoint<E, I_old, O_old>,
-  middleware: Middleware<I_old, I>
+  middleware: Middleware<I_old, I, *>
 };
 
 type Snoc<E: {}, I_old: {}, O_old, I: {}, O> = {
