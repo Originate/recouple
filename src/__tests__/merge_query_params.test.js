@@ -19,7 +19,7 @@ const testEndpoint: SafeAPI.Endpoint<
     y: new SafeAPI.StringRep()
   });
 
-const testHandler = async (input) => {
+const testHandler = async input => {
   (input: { x: string, y: string });
   return "foo";
 };
@@ -32,11 +32,7 @@ describe("for an endpoint with multiple queryString middleware", () => {
     });
     const baseURL = `http://localhost:${server.address().port}`;
     const input = { x: "X", y: "Y" };
-    await Client.safeGet(
-      baseURL,
-      testEndpoint,
-      input
-    );
+    await Client.safeGet(baseURL, testEndpoint, input);
     const expectedURL = `${baseURL}/foo?x=X&y=Y`;
     expect(fetch).toHaveBeenLastCalledWith(expectedURL);
   });

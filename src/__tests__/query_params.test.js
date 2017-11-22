@@ -70,11 +70,7 @@ describe("for a GET endpoint with no parameters", () => {
       extraneous2: "extra"
     };
     const baseURL = `http://localhost:${server.address().port}`;
-    await Client.safeGet(
-      baseURL,
-      testEndpoint,
-      input
-    );
+    await Client.safeGet(baseURL, testEndpoint, input);
     const expectedURL = `${baseURL}/foo?first=First&last=Last`;
     expect(fetch).toHaveBeenLastCalledWith(expectedURL);
   });
