@@ -48,13 +48,13 @@ export class QueryParams<I: {}, P: {}>
   mapServerData(serverData: ServerData<I>): ServerData<I> {
     return {
       ...serverData,
-      queryParams: this.params
+      queryParams: { ...serverData.queryParams, ...this.params }
     };
   }
   mapClientData(clientData: ClientData<I>): ClientData<I> {
     return {
       ...clientData,
-      queryParams: this.params
+      queryParams: { ...clientData.queryParams, ...this.params }
     };
   }
 }
@@ -62,6 +62,7 @@ export class QueryParams<I: {}, P: {}>
 export interface Endpoint<I: {}, O> {
   append<I_new: {}>(middleware: Middleware<I, I_new>): Endpoint<I_new, O>;
   fragment(urlFragment: string): Endpoint<I, O>;
+  queryParams<P: {}>(params: P): Endpoint<$Merge<I, $ExtractTypes<P>>, O>;
 }
 
 export class EndpointImpl<I: {}, O> implements Endpoint<I, O> {
@@ -73,8 +74,11 @@ export class EndpointImpl<I: {}, O> implements Endpoint<I, O> {
   fragment(urlFragment: string): Endpoint<I, O> {
     return this.append(new Fragment(urlFragment));
   }
-}
 
+  queryParams<P: {}>(params: P): Endpoint<$Merge<I, $ExtractTypes<P>>, O> {
+    return this.append(new QueryParams(params));
+  }
+}
 
 type SnocData<I_old: {}, O_old, I: {}> = {
   previous: Endpoint<I_old, O_old>,

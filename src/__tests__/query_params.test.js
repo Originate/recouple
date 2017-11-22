@@ -16,16 +16,12 @@ const testEndpoint: SafeAPI.Endpoint<
     last: string,
     full: string
   }
-> = new SafeAPI.Snoc({
-  previous: new SafeAPI.Snoc({
-    previous: new SafeAPI.Nil(),
-    middleware: new SafeAPI.Fragment("foo")
-  }),
-  middleware: new SafeAPI.QueryParams({
+> = SafeAPI.endpoint()
+  .fragment("foo")
+  .queryParams({
     first: new SafeAPI.StringRep(),
     last: new SafeAPI.StringRep()
-  })
-});
+  });
 
 const testHandler = async input => {
   return {
@@ -73,14 +69,13 @@ describe("for a GET endpoint with no parameters", () => {
       extraneous1: "extra",
       extraneous2: "extra"
     };
+    const baseURL = `http://localhost:${server.address().port}`;
     await Client.safeGet(
-      `http://localhost:${server.address().port}`,
+      baseURL,
       testEndpoint,
       input
     );
-    const expectedURL = `http://localhost:${
-      server.address().port
-    }/foo?first=First&last=Last`;
+    const expectedURL = `${baseURL}/foo?first=First&last=Last`;
     expect(fetch).toHaveBeenLastCalledWith(expectedURL);
   });
 });
