@@ -1,10 +1,14 @@
 // @flow
+import { TypeRep } from "./type_rep";
+
 export type ServerData<I: {}> = {
-  url: string
+  url: string,
+  queryParams: { [string]: TypeRep<any> }
 };
 
 export type ClientData<I: {}> = {
-  url: string
+  url: string,
+  queryParams: { [string]: TypeRep<any> }
 };
 
 interface Middleware<I_old: {}, I: {}> {
@@ -31,9 +35,33 @@ export class Fragment<I: {}> implements Middleware<I, I> {
   }
 }
 
+type $Merge<A: {}, B: {}> = { ...$Exact<A>, ...$Exact<B> };
+type $ExtractTypes<O: {}> = $ObjMap<O, <V>(TypeRep<V>) => V>;
+
+export class QueryParams<I: {}, P: {}>
+  implements Middleware<I, $Merge<I, $ExtractTypes<P>>> {
+  params: P;
+  constructor(params: P) {
+    this.params = params;
+  }
+  mapServerData(serverData: ServerData<I>): ServerData<I> {
+    return {
+      ...serverData,
+      queryParams: { ...serverData.queryParams, ...this.params }
+    };
+  }
+  mapClientData(clientData: ClientData<I>): ClientData<I> {
+    return {
+      ...clientData,
+      queryParams: { ...clientData.queryParams, ...this.params }
+    };
+  }
+}
+
 export interface Endpoint<I: {}, O> {
   append<I_new: {}>(middleware: Middleware<I, I_new>): Endpoint<I_new, O>;
   fragment(urlFragment: string): Endpoint<I, O>;
+  queryParams<P: {}>(params: P): Endpoint<$Merge<I, $ExtractTypes<P>>, O>;
 }
 
 export class EndpointImpl<I: {}, O> implements Endpoint<I, O> {
@@ -44,6 +72,10 @@ export class EndpointImpl<I: {}, O> implements Endpoint<I, O> {
 
   fragment(urlFragment: string): Endpoint<I, O> {
     return this.append(new Fragment(urlFragment));
+  }
+
+  queryParams<P: {}>(params: P): Endpoint<$Merge<I, $ExtractTypes<P>>, O> {
+    return this.append(new QueryParams(params));
   }
 }
 
@@ -69,7 +101,7 @@ export function extractServerData<I: {}>(
     const { previous, middleware } = endpoint.data;
     return middleware.mapServerData(extractServerData(previous));
   } else {
-    return { url: "" };
+    return { url: "", queryParams: {} };
   }
 }
 
@@ -80,7 +112,7 @@ export function extractClientData<I: {}>(
     const { previous, middleware } = endpoint.data;
     return middleware.mapClientData(extractClientData(previous));
   } else {
-    return { url: "" };
+    return { url: "", queryParams: {} };
   }
 }
 
