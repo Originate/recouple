@@ -3,6 +3,13 @@ import * as SafeAPI from "../";
 import * as Server from "./server";
 import Koa from "koa";
 
+jest.mock("isomorphic-fetch", () => {
+  const fetch = (require: any).requireActual("isomorphic-fetch");
+  return jest.fn(fetch);
+});
+
+jest.resetAllMocks();
+
 const _cleanupFns: Array<() => any> = [];
 afterEach(() => {
   while (_cleanupFns.length > 0) {

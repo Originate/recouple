@@ -45,11 +45,7 @@ describe("for a GET endpoint with no parameters", () => {
       `http://localhost:${server.address().port}/foo?first=First&last=Last`
     );
     const json = await resp.json();
-    expect(json).toEqual({
-      first: "First",
-      last: "Last",
-      full: "First Last"
-    });
+    expect(json).toEqual({ first: "First", last: "Last", full: "First Last" });
   });
 
   it("should be able to generate a compatible client", async () => {
@@ -57,19 +53,35 @@ describe("for a GET endpoint with no parameters", () => {
       endpoint: testEndpoint,
       handler: testHandler
     });
+    const input = { first: "First", last: "Last" };
     const resp = await Client.safeGet(
       `http://localhost:${server.address().port}`,
       testEndpoint,
-      {
-        first: "First",
-        last: "Last"
-      }
+      input
     );
-    expect(resp).toEqual({
+    expect(resp).toEqual({ first: "First", last: "Last", full: "First Last" });
+  });
+
+  it("does not serialize extraneous queryStrings", async () => {
+    const server = TestUtils.makeServer({
+      endpoint: testEndpoint,
+      handler: testHandler
+    });
+    const input = {
       first: "First",
       last: "Last",
-      full: "First Last"
-    });
+      extraneous1: "extra",
+      extraneous2: "extra"
+    };
+    await Client.safeGet(
+      `http://localhost:${server.address().port}`,
+      testEndpoint,
+      input
+    );
+    const expectedURL = `http://localhost:${
+      server.address().port
+    }/foo?first=First&last=Last`;
+    expect(fetch).toHaveBeenLastCalledWith(expectedURL);
   });
 });
 
