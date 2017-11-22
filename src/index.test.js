@@ -1,8 +1,9 @@
 // @flow
 import * as SafeAPI from "./";
 import * as t from "./type_rep";
+
 // extensible fluent syntax
-it.only("works", () => {
+it("works", () => {
   const endpoint = SafeAPI.safeAPI()
     .use({ queryParams: SafeAPI.queryParams })
     .use({ fragment: SafeAPI.fragment });

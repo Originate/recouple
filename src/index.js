@@ -159,7 +159,7 @@ type ExtractConstructors<E, I, O> = ExtractConstructorsF<
 >;
 
 function extractConstructors<E: {}>(middlewareFns: E): <I: {}, O>(() => Endpoint<*, I, O>) => ExtractConstructors<E, I, O> {
-  const foo: any = endpointThunk => {
+  const foo = function<I: {}, O> (endpointThunk: () => Endpoint<*, I, O>): ExtractConstructors<E, I, O> {
     const constructors = {};
     for (const key of Object.keys(middlewareFns)) {
       const middlewareFn = middlewareFns[key];
