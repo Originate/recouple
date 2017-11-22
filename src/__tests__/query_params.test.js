@@ -1,5 +1,6 @@
 // @flow
 import * as SafeAPI from "../";
+import * as T from "../type_rep";
 import * as Client from "../client";
 import * as Server from "../server";
 import * as TestUtils from "../test_utils";
@@ -19,8 +20,8 @@ const testEndpoint: SafeAPI.Endpoint<
 > = SafeAPI.endpoint()
   .fragment("foo")
   .queryParams({
-    first: new SafeAPI.StringRep(),
-    last: new SafeAPI.StringRep()
+    first: T.string,
+    last: T.string
   });
 
 const testHandler = async input => {

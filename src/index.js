@@ -1,4 +1,5 @@
 // @flow
+import { TypeRep } from "./type_rep";
 export type ServerData<I: {}> = {
   url: string,
   queryParams: { [string]: TypeRep<any> }
@@ -32,9 +33,6 @@ export class Fragment<I: {}> implements Middleware<I, I> {
     };
   }
 }
-
-export interface TypeRep<T> {}
-export class StringRep implements TypeRep<string> {}
 
 type $Merge<A: {}, B: {}> = { ...$Exact<A>, ...$Exact<B> };
 type $ExtractTypes<O: {}> = $ObjMap<O, <V>(TypeRep<V>) => V>;

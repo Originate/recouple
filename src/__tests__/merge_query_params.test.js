@@ -1,5 +1,6 @@
 // @flow
 import * as SafeAPI from "../";
+import * as T from "../type_rep";
 import * as Client from "../client";
 import * as TestUtils from "../test_utils";
 import * as fetch from "isomorphic-fetch";
@@ -13,10 +14,10 @@ const testEndpoint: SafeAPI.Endpoint<
 > = SafeAPI.endpoint()
   .fragment("foo")
   .queryParams({
-    x: new SafeAPI.StringRep()
+    x: T.string
   })
   .queryParams({
-    y: new SafeAPI.StringRep()
+    y: T.string
   });
 
 const testHandler = async input => {
