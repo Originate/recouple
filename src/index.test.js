@@ -7,12 +7,10 @@ it.only("works", () => {
     .use({ queryParams: SafeAPI.queryParams })
     .use({ fragment: SafeAPI.fragment });
 
-  // The following should error
   // $FlowFixMe
   const myEndpoint: SafeAPI.Endpoint<*, {}, string> = endpoint()
     .fragment("hello")
     .queryParams({ foo: t.string })
-    .queryParams({ bar: t.string });
 
   console.log(JSON.stringify(myEndpoint, null, 2));
 });
