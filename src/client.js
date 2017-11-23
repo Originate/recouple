@@ -6,34 +6,41 @@ import { TypeRep } from "./type_rep";
 
 export type ClientData<I: {}> = {
   url: string,
-  queryParams: { [string]: TypeRep<any> }
+  queryParams: { [string]: any }
 };
 
-type ClientDataF = <I: {}>(I) => ClientData<I>;
+type ClientDataF = <I: {}>(I) => (input: I) => ClientData<I>;
 
 const clientDataVisitor: SafeAPI.Visitor<ClientDataF> = {
-  handleFragment: url => data => {
+  handleFragment: url => getData => input => {
+    const data = getData(input);
     return {
       ...data,
       url: `${data.url}/${url}`
     };
   },
-  handleQueryParams: queryParams => data => {
+  handleQueryParams: queryParams => getData => input => {
+    const data = getData(input);
+    const newQueryParams = Object.assign({}, data.queryParams);
+    for (const key of Object.keys(queryParams)) {
+      newQueryParams[key] = input[key];
+    }
     return {
       ...data,
-      queryParams: { ...data.queryParams, ...queryParams }
+      queryParams: newQueryParams
     };
   },
-  handleNil: () => {
+  handleNil: () => input => {
     return { url: "", queryParams: {} };
   }
 };
 
 export function extractClientData<I: {}, O>(
-  endpoint: SafeAPI.Endpoint<I, O>
+  endpoint: SafeAPI.Endpoint<I, O>,
+  input: I
 ): ClientData<I> {
-  const clientData: $Call<ClientDataF, I> = endpoint.visit(clientDataVisitor);
-  return (clientData: any);
+  const clientData: any = endpoint.visit(clientDataVisitor);
+  return (clientData: I => ClientData<I>)(input);
 }
 
 export async function safeGet<I: {}, O>(
@@ -41,14 +48,9 @@ export async function safeGet<I: {}, O>(
   endpoint: SafeAPI.Endpoint<I, O>,
   input: I
 ): Promise<O> {
-  const { url, queryParams: queryParamsRep } = extractClientData(endpoint);
+  const { url, queryParams } = extractClientData(endpoint, input);
   let fullUrl = `${baseURL}${url}`;
-  if (Object.keys(queryParamsRep).length > 0) {
-    const queryParams = {};
-    for (const key of Object.keys(queryParamsRep)) {
-      const value = input[key];
-      queryParams[key] = value;
-    }
+  if (Object.keys(queryParams).length > 0) {
     const querystring = queryString.stringify(queryParams);
     fullUrl = `${fullUrl}?${querystring}`;
   }
