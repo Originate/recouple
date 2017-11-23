@@ -1,17 +1,7 @@
 // @flow
 import { TypeRep } from "./type_rep";
 
-export type ServerData<I: {}> = {
-  url: string,
-  queryParams: { [string]: TypeRep<any> }
-};
-
-export type ClientData<I: {}> = {
-  url: string,
-  queryParams: { [string]: TypeRep<any> }
-};
-
-type Visitor<Data> = {|
+export type Visitor<Data> = {|
   handleFragment: (urlFragment: string) => (previous: Data) => Data,
   handleQueryParams: <P: {}>(queryParams: P) => (previous: Data) => Data,
   handleNil: () => Data
@@ -57,28 +47,9 @@ class Middleware<I_old: {}, I: {}, Payload> {
   constructor(payload: Payload) {
     this.payload = payload;
   }
-  mapServerData(serverData: ServerData<I_old>): ServerData<I> {
-    throw "hello";
-  }
-  mapClientData(clientData: ClientData<I_old>): ClientData<I> {
-    throw "world";
-  }
 }
 
-export class Fragment<I: {}> extends Middleware<I, I, string> {
-  mapServerData(serverData: ServerData<I>): ServerData<I> {
-    return {
-      ...serverData,
-      url: `${serverData.url}/${this.payload}`
-    };
-  }
-  mapClientData(clientData: ClientData<I>): ClientData<I> {
-    return {
-      ...clientData,
-      url: `${clientData.url}/${this.payload}`
-    };
-  }
-}
+export class Fragment<I: {}> extends Middleware<I, I, string> {}
 
 type $Merge<A: {}, B: {}> = { ...$Exact<A>, ...$Exact<B> };
 type $ExtractTypes<O: {}> = $ObjMap<O, <V>(TypeRep<V>) => V>;
@@ -87,20 +58,7 @@ export class QueryParams<I: {}, P: {}> extends Middleware<
   I,
   $Merge<I, $ExtractTypes<P>>,
   P
-> {
-  mapServerData(serverData: ServerData<I>): ServerData<I> {
-    return {
-      ...serverData,
-      queryParams: { ...serverData.queryParams, ...this.payload }
-    };
-  }
-  mapClientData(clientData: ClientData<I>): ClientData<I> {
-    return {
-      ...clientData,
-      queryParams: { ...clientData.queryParams, ...this.payload }
-    };
-  }
-}
+> {}
 
 export interface Endpoint<I: {}, O> {
   append<I_new: {}>(middleware: Middleware<I, I_new, *>): Endpoint<I_new, O>;
@@ -137,28 +95,6 @@ export class Snoc<I_old: {}, O_old, I: {}, O> extends EndpointImpl<I, O> {
 }
 
 export class Nil<O> extends EndpointImpl<{}, O> {}
-
-export function extractServerData<I: {}>(
-  endpoint: Endpoint<I, *>
-): ServerData<I> {
-  if (endpoint instanceof Snoc) {
-    const { previous, middleware } = endpoint.data;
-    return middleware.mapServerData(extractServerData(previous));
-  } else {
-    return { url: "", queryParams: {} };
-  }
-}
-
-export function extractClientData<I: {}>(
-  endpoint: Endpoint<I, *>
-): ClientData<I> {
-  if (endpoint instanceof Snoc) {
-    const { previous, middleware } = endpoint.data;
-    return middleware.mapClientData(extractClientData(previous));
-  } else {
-    return { url: "", queryParams: {} };
-  }
-}
 
 export function endpoint<O>(): Endpoint<{}, O> {
   return new Nil();
