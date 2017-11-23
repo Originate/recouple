@@ -4,12 +4,14 @@ import queryString from "querystring";
 import fetch from "isomorphic-fetch";
 import { TypeRep } from "./type_rep";
 
-export type ClientData = <I: {}>() => {
+export type ClientData<I: {}> = {
   url: string,
   queryParams: { [string]: TypeRep<any> }
 };
 
-const clientDataVisitor: SafeAPI.Visitor<ClientData> = {
+type ClientDataF = <I: {}>(I) => ClientData<I>;
+
+const clientDataVisitor: SafeAPI.Visitor<ClientDataF> = {
   handleFragment: url => data => {
     return {
       ...data,
@@ -29,8 +31,9 @@ const clientDataVisitor: SafeAPI.Visitor<ClientData> = {
 
 export function extractClientData<I: {}, O>(
   endpoint: SafeAPI.Endpoint<I, O>
-): $Call<ClientData, I> {
-  return endpoint.visit(clientDataVisitor);
+): ClientData<I> {
+  const clientData: $Call<ClientDataF, I> = endpoint.visit(clientDataVisitor);
+  return (clientData: any);
 }
 
 export async function safeGet<I: {}, O>(
@@ -38,8 +41,7 @@ export async function safeGet<I: {}, O>(
   endpoint: SafeAPI.Endpoint<I, O>,
   input: I
 ): Promise<O> {
-  const clientData: $Call<ClientData, I> = extractClientData(endpoint);
-  const { url, queryParams: queryParamsRep } = clientData;
+  const { url, queryParams: queryParamsRep } = extractClientData(endpoint);
   let fullUrl = `${baseURL}${url}`;
   if (Object.keys(queryParamsRep).length > 0) {
     const queryParams = {};

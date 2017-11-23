@@ -2,12 +2,36 @@
 import { TypeRep } from "./type_rep";
 
 interface Middleware<I_old: {}, I: {}> {
-  visit<DataF: Function>(visitor: Visitor<DataF>): $Call<DataF, I_old> => $Call<DataF, I>;
+  /*
+   Our visitors use higher-kinded types so that their result type can depend on the
+   input of type I. Those are encoded as follows in Flow:
+
+   The higher-kinded type (F : * -> *) is encoded as the function type <A>(A) => F(A).
+   The kind (* -> *) itself is encoded as the Function type.
+   For the type-level application (F A) we use $Call<F, A>.
+
+   The support for the conversion rule is not full, so some explicit type-casts are needed
+   when we want to view (x: $Call<F, A>) as the result of the type-level application. For example:
+
+   type F = <A>(A) => Array<A>
+   val x: $Call<F, string>
+   (x: Array<string>) is not valid and will need an intermediate cast to any
+  */
+
+  visit<DataF: Function>(
+    visitor: Visitor<DataF>
+  ): ($Call<DataF, I_old>) => $Call<DataF, I>;
 }
 
 export type Visitor<DataF: Function> = {|
-  handleFragment: (urlFragment: string) => <I: {}>(previous: $Call<DataF, I>) => $Call<DataF, I>,
-  handleQueryParams: <P: {}>(queryParams: P) => <I: {}>(previous: $Call<DataF, I>) => $Call<DataF, $Merge<I, $ExtractTypes<P>>>,
+  handleFragment: (
+    urlFragment: string
+  ) => <I: {}>(previous: $Call<DataF, I>) => $Call<DataF, I>,
+  handleQueryParams: <P: {}>(
+    queryParams: P
+  ) => <I: {}>(
+    previous: $Call<DataF, I>
+  ) => $Call<DataF, $Merge<I, $ExtractTypes<P>>>,
   handleNil: () => $Call<DataF, {}>
 |};
 
@@ -16,7 +40,9 @@ export class Fragment<I: {}> implements Middleware<I, I> {
   constructor(urlFragment: string) {
     this.urlFragment = urlFragment;
   }
-  visit<DataF: Function>(visitor: Visitor<DataF>): $Call<DataF, I> => $Call<DataF, I> {
+  visit<DataF: Function>(
+    visitor: Visitor<DataF>
+  ): ($Call<DataF, I>) => $Call<DataF, I> {
     return visitor.handleFragment(this.urlFragment);
   }
 }
@@ -30,7 +56,9 @@ export class QueryParams<I: {}, P: {}>
   constructor(params: P) {
     this.params = params;
   }
-  visit<DataF: Function>(visitor: Visitor<DataF>): $Call<DataF, I> => $Call<DataF, $Merge<I, $ExtractTypes<P>>> {
+  visit<DataF: Function>(
+    visitor: Visitor<DataF>
+  ): ($Call<DataF, I>) => $Call<DataF, $Merge<I, $ExtractTypes<P>>> {
     return visitor.handleQueryParams(this.params);
   }
 }
