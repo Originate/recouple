@@ -12,7 +12,7 @@ export type ServerData = {
   queryParams: { [string]: TypeRep<any> }
 };
 
-export const serverVisitor: SafeAPI.Visitor<ServerData> = {
+const serverDataVisitor: SafeAPI.Visitor<ServerData> = {
   handleFragment: url => data => {
     return {
       ...data,
@@ -30,11 +30,15 @@ export const serverVisitor: SafeAPI.Visitor<ServerData> = {
   }
 };
 
+export function extractServerData<I: {}, O>(endpoint: SafeAPI.Endpoint<I, O>): ServerData {
+    return endpoint.visit(serverDataVisitor);
+};
+
 export function safeGet<I: {}, O>(
   endpoint: SafeAPI.Endpoint<I, O>,
   handler: Handler<I, O>
 ): KoaMiddleware {
-  const serverData: ServerData = SafeAPI.visitEndpoint(serverVisitor, endpoint);
+  const serverData: ServerData = extractServerData(endpoint);
   const { url, queryParams: queryParamsRep } = serverData;
   return KoaRoute.get(url, async (context, next) => {
     const input: any = {};

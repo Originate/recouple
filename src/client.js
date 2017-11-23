@@ -9,7 +9,7 @@ export type ClientData = {
   queryParams: { [string]: TypeRep<any> }
 };
 
-const clientVisitor: SafeAPI.Visitor<ClientData> = {
+const clientDataVisitor: SafeAPI.Visitor<ClientData> = {
   handleFragment: url => data => {
     return {
       ...data,
@@ -27,12 +27,18 @@ const clientVisitor: SafeAPI.Visitor<ClientData> = {
   }
 };
 
+export function extractClientData<I: {}, O>(
+  endpoint: SafeAPI.Endpoint<I, O>
+): ClientData {
+  return endpoint.visit(clientDataVisitor);
+}
+
 export async function safeGet<I: {}, O>(
   baseURL: string,
   endpoint: SafeAPI.Endpoint<I, O>,
   input: I
 ): Promise<O> {
-  const clientData: ClientData = SafeAPI.visitEndpoint(clientVisitor, endpoint);
+  const clientData: ClientData = extractClientData(endpoint);
   const { url, queryParams: queryParamsRep } = clientData;
   let fullUrl = `${baseURL}${url}`;
   if (Object.keys(queryParamsRep).length > 0) {
