@@ -7,12 +7,12 @@ import queryString from "querystring";
 
 export type Handler<I: {}, O> = I => Promise<O>;
 
-export type ServerData = {
+export type ServerDataF = <I: {}>() => {
   url: string,
   queryParams: { [string]: TypeRep<any> }
 };
 
-const serverDataVisitor: SafeAPI.Visitor<ServerData> = {
+const serverDataVisitor: SafeAPI.Visitor<ServerDataF> = {
   handleFragment: url => data => {
     return {
       ...data,
@@ -30,7 +30,7 @@ const serverDataVisitor: SafeAPI.Visitor<ServerData> = {
   }
 };
 
-export function extractServerData<I: {}, O>(endpoint: SafeAPI.Endpoint<I, O>): ServerData {
+export function extractServerData<I: {}, O>(endpoint: SafeAPI.Endpoint<I, O>): $Call<ServerDataF, I> {
     return endpoint.visit(serverDataVisitor);
 };
 
@@ -38,7 +38,7 @@ export function safeGet<I: {}, O>(
   endpoint: SafeAPI.Endpoint<I, O>,
   handler: Handler<I, O>
 ): KoaMiddleware {
-  const serverData: ServerData = extractServerData(endpoint);
+  const serverData: $Call<ServerDataF, I> = extractServerData(endpoint);
   const { url, queryParams: queryParamsRep } = serverData;
   return KoaRoute.get(url, async (context, next) => {
     const input: any = {};

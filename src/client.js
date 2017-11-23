@@ -4,7 +4,7 @@ import queryString from "querystring";
 import fetch from "isomorphic-fetch";
 import { TypeRep } from "./type_rep";
 
-export type ClientData = {
+export type ClientData = <I: {}>() => {
   url: string,
   queryParams: { [string]: TypeRep<any> }
 };
@@ -29,7 +29,7 @@ const clientDataVisitor: SafeAPI.Visitor<ClientData> = {
 
 export function extractClientData<I: {}, O>(
   endpoint: SafeAPI.Endpoint<I, O>
-): ClientData {
+): $Call<ClientData, I> {
   return endpoint.visit(clientDataVisitor);
 }
 
@@ -38,7 +38,7 @@ export async function safeGet<I: {}, O>(
   endpoint: SafeAPI.Endpoint<I, O>,
   input: I
 ): Promise<O> {
-  const clientData: ClientData = extractClientData(endpoint);
+  const clientData: $Call<ClientData, I> = extractClientData(endpoint);
   const { url, queryParams: queryParamsRep } = clientData;
   let fullUrl = `${baseURL}${url}`;
   if (Object.keys(queryParamsRep).length > 0) {

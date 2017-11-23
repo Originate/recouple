@@ -2,13 +2,13 @@
 import { TypeRep } from "./type_rep";
 
 interface Middleware<I_old: {}, I: {}> {
-  visit<Data>(visitor: Visitor<Data>): Data => Data;
+  visit<DataF: Function>(visitor: Visitor<DataF>): $Call<DataF, I_old> => $Call<DataF, I>;
 }
 
-export type Visitor<Data> = {|
-  handleFragment: (urlFragment: string) => (previous: Data) => Data,
-  handleQueryParams: <P: {}>(queryParams: P) => (previous: Data) => Data,
-  handleNil: () => Data
+export type Visitor<DataF: Function> = {|
+  handleFragment: (urlFragment: string) => <I: {}>(previous: $Call<DataF, I>) => $Call<DataF, I>,
+  handleQueryParams: <P: {}>(queryParams: P) => <I: {}>(previous: $Call<DataF, I>) => $Call<DataF, $Merge<I, $ExtractTypes<P>>>,
+  handleNil: () => $Call<DataF, {}>
 |};
 
 export class Fragment<I: {}> implements Middleware<I, I> {
@@ -16,7 +16,7 @@ export class Fragment<I: {}> implements Middleware<I, I> {
   constructor(urlFragment: string) {
     this.urlFragment = urlFragment;
   }
-  visit<Data>(visitor: Visitor<Data>): Data => Data {
+  visit<DataF: Function>(visitor: Visitor<DataF>): $Call<DataF, I> => $Call<DataF, I> {
     return visitor.handleFragment(this.urlFragment);
   }
 }
@@ -30,13 +30,13 @@ export class QueryParams<I: {}, P: {}>
   constructor(params: P) {
     this.params = params;
   }
-  visit<Data>(visitor: Visitor<Data>): Data => Data {
+  visit<DataF: Function>(visitor: Visitor<DataF>): $Call<DataF, I> => $Call<DataF, $Merge<I, $ExtractTypes<P>>> {
     return visitor.handleQueryParams(this.params);
   }
 }
 
 export interface Endpoint<I: {}, O> {
-  visit<Data>(visitor: Visitor<Data>): Data;
+  visit<DataF: Function>(visitor: Visitor<DataF>): $Call<DataF, {}>;
   append<I_new: {}>(middleware: Middleware<I, I_new>): Endpoint<I_new, O>;
   fragment(urlFragment: string): Endpoint<I, O>;
   queryParams<P: {}>(params: P): Endpoint<$Merge<I, $ExtractTypes<P>>, O>;
@@ -45,7 +45,7 @@ export interface Endpoint<I: {}, O> {
 export class EndpointImpl<I: {}, O> implements Endpoint<I, O> {
   constructor() {}
 
-  visit<Data>(visitor: Visitor<Data>): Data {
+  visit<DataF: Function>(visitor: Visitor<DataF>): $Call<DataF, I> {
     throw "abstract method";
   }
 
@@ -74,14 +74,14 @@ export class Snoc<I_old: {}, O_old, I: {}, O> extends EndpointImpl<I, O> {
     this.data = data;
   }
 
-  visit<Data>(visitor: Visitor<Data>): Data {
+  visit<DataF: Function>(visitor: Visitor<DataF>): $Call<DataF, I> {
     const { previous, middleware } = this.data;
     return middleware.visit(visitor)(previous.visit(visitor));
   }
 }
 
 export class Nil<O> extends EndpointImpl<{}, O> {
-  visit<Data>(visitor: Visitor<Data>): Data {
+  visit<DataF: Function>(visitor: Visitor<DataF>): $Call<DataF, {}> {
     return visitor.handleNil();
   }
 }
