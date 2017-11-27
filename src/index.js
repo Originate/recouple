@@ -115,3 +115,5 @@ export class Nil<O> extends EndpointImpl<{}, O> {
 export function endpoint<O>(): Endpoint<{}, O> {
   return new Nil();
 }
+
+export type Visit<DataF: Function, I> = (Visitor<DataF>) => $Call<DataF, I>;
