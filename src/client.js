@@ -12,6 +12,9 @@ export type ClientData<I: {}> = {
 type ClientDataF = <I: {}>(I) => (input: I) => ClientData<I>;
 
 const clientDataVisitor: SafeAPI.Visitor<ClientDataF> = {
+  init: () => input => {
+    return { url: "", queryParams: {} };
+  },
   handleFragment: url => getData => input => {
     const data = getData(input);
     return {
@@ -29,9 +32,6 @@ const clientDataVisitor: SafeAPI.Visitor<ClientDataF> = {
       ...data,
       queryParams: newQueryParams
     };
-  },
-  handleNil: () => input => {
-    return { url: "", queryParams: {} };
   }
 };
 

@@ -15,6 +15,9 @@ export type ServerData<I: {}> = {
 type ServerDataF = <I: {}>(I) => ServerData<I>;
 
 const serverDataVisitor: SafeAPI.Visitor<ServerDataF> = {
+  init: () => {
+    return { url: "", queryParams: {} };
+  },
   handleFragment: url => data => {
     return {
       ...data,
@@ -26,9 +29,6 @@ const serverDataVisitor: SafeAPI.Visitor<ServerDataF> = {
       ...data,
       queryParams: { ...data.queryParams, ...queryParams }
     };
-  },
-  handleNil: () => {
-    return { url: "", queryParams: {} };
   }
 };
 

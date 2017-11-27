@@ -24,13 +24,13 @@ interface Middleware<I_old: {}, I: {}> {
 }
 
 export type Visitor<DataF: Function> = {|
+  init: () => $Call<DataF, {}>,
   handleFragment: string => <I: {}>(
     previous: $Call<DataF, I>
   ) => $Call<DataF, I>,
   handleQueryParams: <P: {}>(
     P
-  ) => <I: {}>($Call<DataF, I>) => $Call<DataF, $Merge<I, $ExtractTypes<P>>>,
-  handleNil: () => $Call<DataF, {}>
+  ) => <I: {}>($Call<DataF, I>) => $Call<DataF, $Merge<I, $ExtractTypes<P>>>
 |};
 
 export class Fragment<I: {}> implements Middleware<I, I> {
@@ -108,7 +108,7 @@ export class Snoc<I_old: {}, O_old, I: {}, O> extends EndpointImpl<I, O> {
 
 export class Nil<O> extends EndpointImpl<{}, O> {
   visit<DataF: Function>(visitor: Visitor<DataF>): $Call<DataF, {}> {
-    return visitor.handleNil();
+    return visitor.init();
   }
 }
 
