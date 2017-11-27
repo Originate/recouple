@@ -24,14 +24,12 @@ interface Middleware<I_old: {}, I: {}> {
 }
 
 export type Visitor<DataF: Function> = {|
-  handleFragment: (
-    urlFragment: string
-  ) => <I: {}>(previous: $Call<DataF, I>) => $Call<DataF, I>,
-  handleQueryParams: <P: {}>(
-    queryParams: P
-  ) => <I: {}>(
+  handleFragment: string => <I: {}>(
     previous: $Call<DataF, I>
-  ) => $Call<DataF, $Merge<I, $ExtractTypes<P>>>,
+  ) => $Call<DataF, I>,
+  handleQueryParams: <P: {}>(
+    P
+  ) => <I: {}>($Call<DataF, I>) => $Call<DataF, $Merge<I, $ExtractTypes<P>>>,
   handleNil: () => $Call<DataF, {}>
 |};
 
@@ -64,7 +62,7 @@ export class QueryParams<I: {}, P: {}>
 }
 
 export interface Endpoint<I: {}, O> {
-  visit<DataF: Function>(visitor: Visitor<DataF>): $Call<DataF, {}>;
+  visit<DataF: Function>(visitor: Visitor<DataF>): $Call<DataF, I>;
   append<I_new: {}>(middleware: Middleware<I, I_new>): Endpoint<I_new, O>;
   fragment(urlFragment: string): Endpoint<I, O>;
   queryParams<P: {}>(params: P): Endpoint<$Merge<I, $ExtractTypes<P>>, O>;

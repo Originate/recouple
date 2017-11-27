@@ -35,8 +35,10 @@ const serverDataVisitor: SafeAPI.Visitor<ServerDataF> = {
 export function extractServerData<I: {}, O>(
   endpoint: SafeAPI.Endpoint<I, O>
 ): ServerData<I> {
-  const serverData: $Call<ServerDataF, I> = endpoint.visit(serverDataVisitor);
-  return (serverData: any);
+  const visit: (
+    SafeAPI.Visitor<ServerDataF>
+  ) => $Call<ServerDataF, I> = endpoint.visit.bind(endpoint);
+  return visit(serverDataVisitor);
 }
 
 export function safeGet<I: {}, O>(
