@@ -10,12 +10,9 @@ interface Middleware<I_old: {}, I: {}> {
    The kind (* -> *) itself is encoded as the Function type.
    For the type-level application (F A) we use $Call<F, A>.
 
-   The support for the conversion rule is not full, so some explicit type-casts are needed
-   when we want to view (x: $Call<F, A>) as the result of the type-level application. For example:
-
-   type F = <A>(A) => Array<A>
-   val x: $Call<F, string>
-   (x: Array<string>) is not valid and will need an intermediate cast to any
+   The support for the conversion rule is not full, so some explicit fiddling
+   might be needed to get the types to work out -- look at src/client.js for
+   example.
   */
 
   visit<DataF: Function>(

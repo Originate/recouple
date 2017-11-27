@@ -39,6 +39,8 @@ export function extractClientData<I: {}, O>(
   endpoint: SafeAPI.Endpoint<I, O>,
   input: I
 ): ClientData<I> {
+  // this needs to be extracted out (instead of doing endpoint.visit(...) directly)
+  // so that Flow is convinced that the types work out
   const visit: (
     SafeAPI.Visitor<ClientDataF>
   ) => $Call<ClientDataF, I> = endpoint.visit.bind(endpoint);
