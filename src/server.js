@@ -35,7 +35,7 @@ const serverDataVisitor: SafeAPI.Visitor<ServerDataF> = {
 export function extractServerData<I: {}, O>(
   endpoint: SafeAPI.Endpoint<I, O>
 ): ServerData<I> {
-  const visit: SafeAPI.Visit<ServerDataF, I> = endpoint.visit.bind(endpoint);
+  const visit: SafeAPI.Visit<ServerDataF, I> = SafeAPI.makeVisitor(endpoint);
   return visit(serverDataVisitor);
 }
 

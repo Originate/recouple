@@ -114,3 +114,7 @@ export function endpoint<O>(): Endpoint<{}, O> {
 }
 
 export type Visit<DataF: Function, I> = (Visitor<DataF>) => $Call<DataF, I>;
+
+export function makeVisitor<I: {}, O>(endpoint: Endpoint<I, O>): Visit<*, I> {
+  return endpoint.visit.bind(endpoint);
+}
