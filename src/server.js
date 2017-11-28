@@ -47,11 +47,9 @@ export function safeGet<I: {}, O>(
   return KoaRoute.get(url, async (context, next) => {
     const input: any = {};
 
-    if (Object.keys(queryParamsRep).length > 0) {
-      const rawQueryParams = queryString.parse(context.request.querystring);
-      for (const key of Object.keys(queryParamsRep)) {
-        input[key] = rawQueryParams[key];
-      }
+    const rawQueryParams = queryString.parse(context.request.querystring);
+    for (const key of Object.keys(queryParamsRep)) {
+      input[key] = rawQueryParams[key];
     }
 
     const output = await handler(input);
