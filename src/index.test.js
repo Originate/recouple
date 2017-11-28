@@ -1,40 +1,65 @@
 // @flow
 import * as SafeAPI from "./";
-import { endpoint } from "./";
+import * as t from "./type_rep";
 
-describe("endpoint", () => {
-  describe("when called by itself", () => {
-    it("returns an empty endpoint", () => {
-      expect(endpoint()).toEqual(new SafeAPI.Nil());
-    });
+// extensible fluent syntax
+it("works", () => {
+  const endpoint = SafeAPI.safeAPI()
+    .use({ queryParams: SafeAPI.queryParams })
+    .use({ fragment: SafeAPI.fragment });
 
-    // type-level tests
-    () => {
-      // ok
-      (endpoint(): SafeAPI.Endpoint<{}, string>);
+  const myEndpoint: SafeAPI.Endpoint<*, { foo: string }, string> = endpoint()
+    .fragment("hello")
+    .queryParams({ foo: t.string });
 
-      // $FlowFixMe
-      (endpoint(): SafeAPI.Endpoint<{ foo: string }, string>);
-    };
-  });
-
-  describe("when chained with a single fragment", () => {
-    it("returns an endpoint with the fragment", () => {
-      expect(endpoint().fragment("foo")).toEqual(
-        new SafeAPI.Snoc({
-          previous: new SafeAPI.Nil(),
-          middleware: new SafeAPI.Fragment("foo")
-        })
-      );
-    });
-
-    // type-level tests
-    () => {
-      // ok
-      (endpoint().fragment("foo"): SafeAPI.Endpoint<{}, string>);
-
-      // $FlowFixMe
-      (endpoint().fragment("foo"): SafeAPI.Endpoint<{ foo: string }, string>);
-    };
-  });
+  console.log(JSON.stringify(myEndpoint, null, 2));
 });
+
+// type level tests
+
+// happy path
+() => {
+  const endpoint = SafeAPI.safeAPI()
+    .use({ queryParams: SafeAPI.queryParams })
+    .use({ fragment: SafeAPI.fragment });
+
+  // ok
+  const myEndpoint: SafeAPI.Endpoint<*, { foo: string }, string> = endpoint()
+    .fragment("hello")
+    .queryParams({ foo: t.string });
+};
+
+// error when using a nonexistent middleware
+() => {
+  const endpoint = SafeAPI.safeAPI();
+
+  const myEndpoint: SafeAPI.Endpoint<*, {}, string> = endpoint()
+    // $FlowFixMe
+    .fragment("hello");
+};
+
+// error with invalid input type annotation
+() => {
+  const endpoint = SafeAPI.safeAPI()
+    .use({ queryParams: SafeAPI.queryParams })
+    .use({ fragment: SafeAPI.fragment });
+
+  // $FlowFixMe
+  const myEndpoint: SafeAPI.Endpoint<*, {}, string> = endpoint()
+    .fragment("hello")
+    .queryParams({ foo: t.string });
+};
+
+// error with invalid input type annotation
+() => {
+  const endpoint = SafeAPI.safeAPI()
+    .use({ queryParams: SafeAPI.queryParams })
+    .use({ fragment: SafeAPI.fragment });
+
+  const myEndpoint: SafeAPI.Endpoint<
+    *,
+    // $FlowFixMe
+    { foo: string },
+    string
+  > = endpoint().fragment("hello");
+};

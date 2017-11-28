@@ -1,4 +1,3 @@
-// @flow
 import * as SafeAPI from "../";
 import * as Server from "./server";
 import Koa from "koa";

@@ -1,4 +1,3 @@
-// @flow
 import * as SafeAPI from "./";
 import type { Middleware as KoaMiddleware } from "koa";
 import KoaRoute from "koa-route";

@@ -1,4 +1,3 @@
-// @flow
 import * as SafeAPI from "./";
 import queryString from "querystring";
 import fetch from "isomorphic-fetch";
