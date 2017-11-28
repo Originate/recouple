@@ -1,12 +1,13 @@
 {
   "name": "safe-api",
-  "version": "0",
+  "version": "0.1.0",
   "description": "typesafe api routing",
   "main": "src/index.js",
   "license": "MIT",
   "devDependencies": {
     "babel-eslint": "^8.0.2",
     "babel-plugin-transform-flow-strip-types": "^6.22.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "eslint": "^4.11.0",
     "eslint-plugin-flowtype": "^2.39.1",
