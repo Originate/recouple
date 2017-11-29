@@ -10,11 +10,11 @@
         "lerna": "^2.5.1"
     },
     "scripts": {
-      "check-all": "flow && yarn format-check && yarn lint && yarn test",
+      "check-all": "flow && yarn format-check && yarn lint && yarn jest",
       "format": "lerna run format",
       "format-check": "lerna run format-check",
       "lint": "lerna run lint",
-      "test": "lerna run jest",
+      "jest": "lerna run jest",
       "run-example": "echo '\"cd example/backend && yarn start\"\n\"cd example/frontend && yarn start\"' | xargs -l -P 2 sh -c"
     }
 }
