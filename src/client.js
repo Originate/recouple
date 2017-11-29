@@ -39,9 +39,8 @@ export function extractClientData<I: {}, O>(
   endpoint: SafeAPI.Endpoint<I, O>,
   input: I
 ): ClientData<I> {
-  const visit: SafeAPI.Visit<ClientDataF, I> = SafeAPI.makeVisitor(endpoint);
-  const clientData = visit(clientDataVisitor);
-  return clientData(input);
+  const visit: SafeAPI.Visit<ClientDataF, I> = SafeAPI.makeVisit(endpoint);
+  return visit(clientDataVisitor)(input);
 }
 
 export async function safeGet<I: {}, O>(
