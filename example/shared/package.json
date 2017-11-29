@@ -1,0 +1,19 @@
+{
+  "name": "example-shared",
+  "version": "1.0.0",
+  "private": true,
+  "devDependencies": {
+    "babel-plugin-transform-flow-strip-types": "^6.22.0",
+    "babel-preset-env": "^1.6.1",
+    "flow-bin": "^0.55.0",
+    "prettier": "^1.8.2"
+  },
+  "dependencies": {
+    "safe-api": "0.1.0"
+  },
+  "scripts": {
+    "check-all": "flow && yarn format-check",
+    "format": "prettier --write '**/*.js'",
+    "format-check": "prettier -l '**/*.js'"
+  }
+}

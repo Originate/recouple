@@ -5,5 +5,5 @@
     },
     "exclude": ["transform-async-to-generator"]
   }]],
-  plugins: ["transform-flow-strip-types"]
+  plugins: ["transform-flow-strip-types", "transform-object-rest-spread"]
 }
