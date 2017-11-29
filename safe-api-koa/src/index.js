@@ -7,6 +7,7 @@ import queryString from "querystring";
 
 export type Handler<I: {}, O> = I => Promise<O>;
 
+// eslint-disable-next-line no-unused-vars
 export type ServerData<I: {}> = {
   url: string,
   queryParams: { [string]: TypeRep<any> }
