@@ -5,7 +5,11 @@
         "safe-api"
     ],
     "devDependencies": {
+        "flow-bin": "^0.55.0",
         "flow-typed": "^2.2.3",
-        "flow-bin": "^0.55.0"
+        "lerna": "^2.5.1"
+    },
+    "scripts": {
+        "check-all": "lerna run check-all"
     }
 }

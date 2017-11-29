@@ -10,7 +10,7 @@ buttonElement.textContent = "/api/hello";
 const responseElement = document.createElement("div");
 (document.body: any).appendChild(responseElement);
 
-buttonElement.addEventListener('click', async () => {
+buttonElement.addEventListener("click", async () => {
   try {
     const response = await SafeAPIClient.safeGet("/api", API.hello, {});
     responseElement.textContent = response;
@@ -18,4 +18,3 @@ buttonElement.addEventListener('click', async () => {
     responseElement.textContent = e;
   }
 });
-
