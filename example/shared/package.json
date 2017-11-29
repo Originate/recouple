@@ -1,5 +1,5 @@
 {
-  "name": "shared",
+  "name": "example-shared",
   "version": "1.0.0",
   "private": true,
   "devDependencies": {
@@ -7,6 +7,9 @@
     "babel-preset-env": "^1.6.1",
     "flow-bin": "^0.55.0",
     "prettier": "^1.8.2"
+  },
+  "dependencies": {
+    "safe-api": "0.1.0"
   },
   "scripts": {
     "check-all": "flow && yarn format-check",

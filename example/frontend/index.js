@@ -1,14 +1,14 @@
 // @flow
 import "babel-polyfill";
-import * as SafeAPIClient from "../../src/client";
-import * as API from "shared/api";
+import * as SafeAPIClient from "safe-api/src/client";
+import * as API from "example-shared/api";
 
 const buttonElement = document.createElement("button");
 buttonElement.textContent = "/api/hello";
-document.body.appendChild(buttonElement);
+(document.body: any).appendChild(buttonElement);
 
 const responseElement = document.createElement("div");
-document.body.appendChild(responseElement);
+(document.body: any).appendChild(responseElement);
 
 buttonElement.addEventListener('click', async () => {
   try {

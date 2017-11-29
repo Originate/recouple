@@ -1,6 +1,6 @@
 // @flow
-import * as SafeAPIServer from "../../src/server";
-import * as API from "shared/api";
+import * as SafeAPIServer from "safe-api/src/server";
+import * as API from "example-shared/api";
 import Koa from "koa";
 
 export function main() {

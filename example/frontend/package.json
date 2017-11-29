@@ -1,5 +1,5 @@
 {
-  "name": "frontend",
+  "name": "example-frontend",
   "version": "1.0.0",
   "private": true,
   "main": "index.js",
@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "babel-polyfill": "^6.26.0",
-    "safe-api": "file:../../"
+    "safe-api": "0.1.0"
   },
   "scripts": {
     "check-all": "flow && yarn format-check",

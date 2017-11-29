@@ -1,5 +1,5 @@
 {
-  "name": "backend",
+  "name": "example-backend",
   "version": "1.0.0",
   "private": true,
   "main": "index.js",
@@ -13,7 +13,7 @@
   "dependencies": {
     "babel-register": "^6.26.0",
     "koa": "^2.4.1",
-    "safe-api": "file:../../"
+    "safe-api": "0.1.0"
   },
   "scripts": {
     "check-all": "flow && yarn format-check",
