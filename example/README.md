@@ -2,22 +2,22 @@
 
 Run `yarn` in this directory to build.
 
-## `/shared`
+## [/shared](shared)
 This is where the shared API definition is located
 
-## `/backend`
+## [/backend](backend)
 Imports the shared api definition to use for a type-safe server route.
 
-#### to run:
+#### Run:
 
 ```
 yarn start
 ```
 
-## `/frontend`
+## [/frontend](frontend)
 Imports the shared api definition to use for a type-safe client.
 
-#### to run:
+#### Run:
 ```
 yarn start
 ```
