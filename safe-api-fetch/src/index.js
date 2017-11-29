@@ -1,9 +1,9 @@
 // @flow
-import * as SafeAPI from "./";
+import * as SafeAPI from "safe-api";
 import queryString from "querystring";
 import fetch from "isomorphic-fetch";
-import { TypeRep } from "./type_rep";
 
+// eslint-disable-next-line no-unused-vars
 export type ClientData<I: {}> = {
   url: string,
   queryParams: { [string]: any }
@@ -12,7 +12,7 @@ export type ClientData<I: {}> = {
 type ClientDataF = <I: {}>(I) => (input: I) => ClientData<I>;
 
 const clientDataVisitor: SafeAPI.Visitor<ClientDataF> = {
-  init: () => input => {
+  init: () => () => {
     return { url: "", queryParams: {} };
   },
   handleFragment: url => getData => input => {

@@ -1,12 +1,13 @@
 // @flow
-import * as SafeAPI from "./";
-import { TypeRep } from "./type_rep";
+import * as SafeAPI from "safe-api";
+import { TypeRep } from "safe-api/lib/type_rep";
 import type { Middleware as KoaMiddleware } from "koa";
 import KoaRoute from "koa-route";
 import queryString from "querystring";
 
 export type Handler<I: {}, O> = I => Promise<O>;
 
+// eslint-disable-next-line no-unused-vars
 export type ServerData<I: {}> = {
   url: string,
   queryParams: { [string]: TypeRep<any> }

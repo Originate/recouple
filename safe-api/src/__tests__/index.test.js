@@ -1,6 +1,6 @@
 // @flow
-import * as SafeAPI from "./";
-import { endpoint } from "./";
+const SafeAPI = require("../");
+const { endpoint } = require("../");
 
 describe("endpoint", () => {
   describe("when called by itself", () => {
