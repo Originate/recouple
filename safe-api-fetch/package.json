@@ -1,5 +1,5 @@
 {
-  "name": "safe-api-client",
+  "name": "safe-api-fetch",
   "version": "0.1.0",
   "description": "typesafe api routing",
   "main": "lib/index.js",

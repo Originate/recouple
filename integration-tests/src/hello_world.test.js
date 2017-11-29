@@ -1,6 +1,6 @@
 // @flow
 import * as SafeAPI from "safe-api";
-import * as Client from "safe-api-client";
+import * as Client from "safe-api-fetch";
 import * as Server from "safe-api-koa";
 import * as TestUtils from "./test_utils";
 import Koa from "koa";

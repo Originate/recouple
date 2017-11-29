@@ -5,7 +5,7 @@
       "example/*",
       "integration-tests",
       "safe-api",
-      "safe-api-client",
+      "safe-api-fetch",
       "safe-api-koa"
   ],
   "useWorkspaces": true,

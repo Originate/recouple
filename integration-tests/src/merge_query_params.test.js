@@ -1,7 +1,7 @@
 // @flow
 import * as SafeAPI from "safe-api";
 import * as T from "safe-api/lib/type_rep";
-import * as Client from "safe-api-client";
+import * as Client from "safe-api-fetch";
 import * as TestUtils from "./test_utils";
 import * as fetch from "isomorphic-fetch";
 
