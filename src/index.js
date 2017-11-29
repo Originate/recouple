@@ -1,37 +1,44 @@
 // @flow
 import { TypeRep } from "./type_rep";
 
-export type ServerData<I: {}> = {
-  url: string,
-  queryParams: { [string]: TypeRep<any> }
-};
-
-export type ClientData<I: {}> = {
-  url: string,
-  queryParams: { [string]: TypeRep<any> }
-};
-
 interface Middleware<I_old: {}, I: {}> {
-  mapServerData(input: ServerData<I_old>): ServerData<I>;
-  mapClientData(input: ClientData<I_old>): ClientData<I>;
+  /*
+   Our visitors use higher-kinded types so that their result type can depend on the
+   input of type I. Those are encoded as follows in Flow:
+
+   The higher-kinded type (F : * -> *) is encoded as the function type <A>(A) => F(A).
+   The kind (* -> *) itself is encoded as the Function type.
+   For the type-level application (F A) we use $Call<F, A>.
+
+   The support for the conversion rule is not full, so some explicit fiddling
+   might be needed to get the types to work out -- look at src/client.js for
+   example.
+  */
+
+  _visit<DataF: Function>(
+    visitor: Visitor<DataF>
+  ): ($Call<DataF, I_old>) => $Call<DataF, I>;
 }
+
+export type Visitor<DataF: Function> = {|
+  init: () => $Call<DataF, {}>,
+  handleFragment: string => <I: {}>(
+    previous: $Call<DataF, I>
+  ) => $Call<DataF, I>,
+  handleQueryParams: <P: {}>(
+    P
+  ) => <I: {}>($Call<DataF, I>) => $Call<DataF, $Merge<I, $ExtractTypes<P>>>
+|};
 
 export class Fragment<I: {}> implements Middleware<I, I> {
   urlFragment: string;
   constructor(urlFragment: string) {
     this.urlFragment = urlFragment;
   }
-  mapServerData(serverData: ServerData<I>): ServerData<I> {
-    return {
-      ...serverData,
-      url: `${serverData.url}/${this.urlFragment}`
-    };
-  }
-  mapClientData(clientData: ClientData<I>): ClientData<I> {
-    return {
-      ...clientData,
-      url: `${clientData.url}/${this.urlFragment}`
-    };
+  _visit<DataF: Function>(
+    visitor: Visitor<DataF>
+  ): ($Call<DataF, I>) => $Call<DataF, I> {
+    return visitor.handleFragment(this.urlFragment);
   }
 }
 
@@ -44,21 +51,15 @@ export class QueryParams<I: {}, P: {}>
   constructor(params: P) {
     this.params = params;
   }
-  mapServerData(serverData: ServerData<I>): ServerData<I> {
-    return {
-      ...serverData,
-      queryParams: { ...serverData.queryParams, ...this.params }
-    };
-  }
-  mapClientData(clientData: ClientData<I>): ClientData<I> {
-    return {
-      ...clientData,
-      queryParams: { ...clientData.queryParams, ...this.params }
-    };
+  _visit<DataF: Function>(
+    visitor: Visitor<DataF>
+  ): ($Call<DataF, I>) => $Call<DataF, $Merge<I, $ExtractTypes<P>>> {
+    return visitor.handleQueryParams(this.params);
   }
 }
 
 export interface Endpoint<I: {}, O> {
+  _visit<DataF: Function>(visitor: Visitor<DataF>): $Call<DataF, I>;
   append<I_new: {}>(middleware: Middleware<I, I_new>): Endpoint<I_new, O>;
   fragment(urlFragment: string): Endpoint<I, O>;
   queryParams<P: {}>(params: P): Endpoint<$Merge<I, $ExtractTypes<P>>, O>;
@@ -66,6 +67,11 @@ export interface Endpoint<I: {}, O> {
 
 export class EndpointImpl<I: {}, O> implements Endpoint<I, O> {
   constructor() {}
+
+  _visit<DataF: Function>(visitor: Visitor<DataF>): $Call<DataF, I> {
+    throw "abstract method";
+  }
+
   append<I_new: {}>(middleware: Middleware<I, I_new>): Endpoint<I_new, O> {
     return new Snoc({ previous: this, middleware });
   }
@@ -90,32 +96,25 @@ export class Snoc<I_old: {}, O_old, I: {}, O> extends EndpointImpl<I, O> {
     super();
     this.data = data;
   }
-}
 
-export class Nil<O> extends EndpointImpl<{}, O> {}
-
-export function extractServerData<I: {}>(
-  endpoint: Endpoint<I, *>
-): ServerData<I> {
-  if (endpoint instanceof Snoc) {
-    const { previous, middleware } = endpoint.data;
-    return middleware.mapServerData(extractServerData(previous));
-  } else {
-    return { url: "", queryParams: {} };
+  _visit<DataF: Function>(visitor: Visitor<DataF>): $Call<DataF, I> {
+    const { previous, middleware } = this.data;
+    return middleware._visit(visitor)(previous._visit(visitor));
   }
 }
 
-export function extractClientData<I: {}>(
-  endpoint: Endpoint<I, *>
-): ClientData<I> {
-  if (endpoint instanceof Snoc) {
-    const { previous, middleware } = endpoint.data;
-    return middleware.mapClientData(extractClientData(previous));
-  } else {
-    return { url: "", queryParams: {} };
+export class Nil<O> extends EndpointImpl<{}, O> {
+  _visit<DataF: Function>(visitor: Visitor<DataF>): $Call<DataF, {}> {
+    return visitor.init();
   }
 }
 
 export function endpoint<O>(): Endpoint<{}, O> {
   return new Nil();
+}
+
+export type Visit<DataF: Function, I> = (Visitor<DataF>) => $Call<DataF, I>;
+
+export function makeVisit<I: {}, O>(endpoint: Endpoint<I, O>): Visit<*, I> {
+  return endpoint._visit.bind(endpoint);
 }
