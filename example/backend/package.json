@@ -13,7 +13,6 @@
   "dependencies": {
     "babel-register": "^6.26.0",
     "koa": "^2.4.1",
-    "safe-api": "0.1.0",
     "safe-api-koa": "0.1.0"
   },
   "scripts": {

@@ -1,7 +1,7 @@
 // @flow
 import * as SafeAPI from "safe-api";
 import * as T from "safe-api/lib/type_rep";
-import * as Client from "safe-api-fetch";
+import * as SafeFetch from "safe-api-fetch";
 import * as TestUtils from "./test_utils";
 import * as fetch from "isomorphic-fetch";
 
@@ -32,7 +32,7 @@ describe("for an endpoint with multiple queryString middleware", () => {
     });
     const baseURL = `http://localhost:${server.address().port}`;
     const input = { x: "X", y: "Y" };
-    await Client.safeGet(baseURL, testEndpoint, input);
+    await SafeFetch.safeGet(baseURL, testEndpoint, input);
     const expectedURL = `${baseURL}/foo?x=X&y=Y`;
     expect(fetch).toHaveBeenLastCalledWith(expectedURL);
   });
