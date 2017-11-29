@@ -1,6 +1,6 @@
 // @flow
-import * as SafeAPI from "../";
-import * as Server from "./server";
+import * as SafeAPI from "safe-api";
+import * as Server from "safe-api-koa";
 import Koa from "koa";
 
 jest.mock("isomorphic-fetch", () => {

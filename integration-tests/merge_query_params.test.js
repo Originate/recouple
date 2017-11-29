@@ -1,8 +1,8 @@
 // @flow
-import * as SafeAPI from "../";
-import * as T from "../type_rep";
-import * as Client from "../client";
-import * as TestUtils from "../test_utils";
+import * as SafeAPI from "safe-api";
+import * as T from "safe-api/lib/type_rep";
+import * as Client from "safe-api-client";
+import * as TestUtils from "./test_utils";
 import * as fetch from "isomorphic-fetch";
 
 const testEndpoint: SafeAPI.Endpoint<

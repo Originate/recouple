@@ -1,9 +1,9 @@
 // @flow
-import * as SafeAPI from "../";
-import * as T from "../type_rep";
-import * as Client from "../client";
-import * as Server from "../server";
-import * as TestUtils from "../test_utils";
+import * as SafeAPI from "safe-api";
+import * as T from "safe-api/lib/type_rep";
+import * as Client from "safe-api-client";
+import * as Server from "safe-api-koa";
+import * as TestUtils from "./test_utils";
 import fetch from "isomorphic-fetch";
 import Koa from "koa";
 

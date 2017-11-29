@@ -1,8 +1,8 @@
 // @flow
-import * as SafeAPI from "../";
-import * as Client from "../client";
-import * as Server from "../server";
-import * as TestUtils from "../test_utils";
+import * as SafeAPI from "safe-api";
+import * as Client from "safe-api-client";
+import * as Server from "safe-api-koa";
+import * as TestUtils from "./test_utils";
 import Koa from "koa";
 import fetch from "isomorphic-fetch";
 

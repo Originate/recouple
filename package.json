@@ -2,7 +2,10 @@
     "private": true,
     "workspaces": [
         "example/*",
-        "safe-api"
+        "integration-tests",
+        "safe-api",
+        "safe-api-client",
+        "safe-api-koa"
     ],
     "devDependencies": {
         "flow-bin": "^0.55.0",
@@ -10,6 +13,7 @@
         "lerna": "^2.5.1"
     },
     "scripts": {
+      "build": "lerna run build",
       "check-all": "flow && yarn format-check && yarn lint && yarn jest",
       "format": "lerna run format",
       "format-check": "lerna run format-check",

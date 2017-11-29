@@ -1,8 +1,8 @@
 // @flow
-import * as SafeAPI from "./";
+import * as SafeAPI from "safe-api";
 import queryString from "querystring";
 import fetch from "isomorphic-fetch";
-import { TypeRep } from "./type_rep";
+import { TypeRep } from "safe-api/lib/type_rep";
 
 export type ClientData<I: {}> = {
   url: string,
