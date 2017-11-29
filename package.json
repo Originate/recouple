@@ -14,6 +14,7 @@
       "format": "lerna run format",
       "format-check": "lerna run format-check",
       "lint": "lerna run lint",
-      "test": "lerna run jest"
+      "test": "lerna run jest",
+      "run-example": "echo '\"cd example/backend && yarn start\"\n\"cd example/frontend && yarn start\"' | xargs -l -P 2 sh -c"
     }
 }

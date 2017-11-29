@@ -10,6 +10,6 @@ export function main() {
       return "world";
     })
   );
-  const server = app.listen(8080);
-  return server;
+  app.listen(8080);
+  console.log("backend started on port 8080");
 }

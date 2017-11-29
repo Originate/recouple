@@ -1,23 +1,28 @@
 # Barebones example application with safe-api
 
-Run `yarn` in this directory to build.
+## Run:
 
-## [/shared](shared)
+First, build the project:
+```
+yarn
+```
+
+The following command spins up both the backend and frontend. Ctrl-C will terminate both.
+
+```
+yarn run-example
+```
+
+The backend is served on port 8080, and the frontend is served at [http://localhost:8081](http://localhost:8081).
+
+## Directory structure:
+
+### [shared/api.js](shared/api.js)
 This is where the shared API definition is located
 
-## [/backend](backend)
+### [backend/index.js](backend/index.js)
 Imports the shared api definition to use for a type-safe server route.
 
-#### Run:
 
-```
-yarn start
-```
-
-## [/frontend](frontend)
+### [frontend/index.js](frontend/index.js)
 Imports the shared api definition to use for a type-safe client.
-
-#### Run:
-```
-yarn start
-```
