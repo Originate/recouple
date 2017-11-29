@@ -10,7 +10,10 @@
         "lerna": "^2.5.1"
     },
     "scripts": {
-      "check-all": "flow && yarn format-check",
-      "format-check": "lerna run format-check"
+      "check-all": "flow && yarn format-check && yarn lint && yarn test",
+      "format": "lerna run format",
+      "format-check": "lerna run format-check",
+      "lint": "lerna run lint",
+      "test": "lerna run jest"
     }
 }
