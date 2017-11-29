@@ -19,6 +19,6 @@
     "check-all": "flow && yarn format-check",
     "format": "prettier --write '**/*.js'",
     "format-check": "prettier -l '**/*.js'",
-    "start": "node index.js"
+    "start": "node entry.js"
   }
 }
