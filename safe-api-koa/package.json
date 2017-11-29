@@ -18,7 +18,8 @@
     "prettier": "^1.8.2"
   },
   "dependencies": {
-    "isomorphic-fetch": "^2.2.1"
+    "isomorphic-fetch": "^2.2.1",
+    "safe-api": "0.1.0"
   },
   "scripts": {
     "build": "yarn build-babel && yarn build-flow",
