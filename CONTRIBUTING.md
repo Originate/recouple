@@ -11,7 +11,10 @@ If the feature request doesn't already exist, file it in a Github issue!
 ### Setup the repo:
 - Install node 8.7.0
 - Install yarn 1.3.2
-- `yarn install`
+- `yarn`
+
+### Build all the packages:
+- `yarn build`
 
 ### Development:
 - Type-check with  `yarn flow`

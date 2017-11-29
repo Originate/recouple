@@ -9,5 +9,8 @@ jobs:
           name: Install dependencies
           command: yarn
       - run:
+          name: Build packages
+          command: yarn build
+      - run:
           name: Checks
           command: yarn check-all

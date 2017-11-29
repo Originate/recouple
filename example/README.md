@@ -2,9 +2,9 @@
 
 ## Run:
 
-First, build the project:
+First, at the root level of the git repository, build the project:
 ```
-yarn
+yarn && yarn build
 ```
 
 The following command spins up both the backend and frontend. Ctrl-C will terminate both.
