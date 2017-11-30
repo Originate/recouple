@@ -3,6 +3,7 @@ import * as SafeAPI from "./";
 import queryString from "querystring";
 import fetch from "isomorphic-fetch";
 import { TypeRep } from "./type_rep";
+import _ from "lodash";
 
 export type ClientData<I: {}> = {
   url: string,
@@ -51,7 +52,8 @@ export async function safeGet<I: {}, O>(
   const { url, queryParams } = extractClientData(endpoint, input);
   let fullUrl = `${baseURL}${url}`;
   if (Object.keys(queryParams).length > 0) {
-    const querystring = queryString.stringify(queryParams);
+    const definedParams = _.pickBy(queryParams, (param) => param !== undefined)
+    const querystring = queryString.stringify(definedParams);
     fullUrl = `${fullUrl}?${querystring}`;
   }
   const resp = await fetch(fullUrl);
