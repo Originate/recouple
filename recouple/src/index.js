@@ -27,6 +27,9 @@ export type Visitor<DataF: Function> = {|
   ) => $Call<DataF, I>,
   handleQueryParams: <P: {}>(
     P
+  ) => <I: {}>($Call<DataF, I>) => $Call<DataF, $Merge<I, $ExtractTypes<P>>>,
+  handleCaptureParam: <P: {}>(
+    P
   ) => <I: {}>($Call<DataF, I>) => $Call<DataF, $Merge<I, $ExtractTypes<P>>>
 |};
 
@@ -58,11 +61,27 @@ export class QueryParams<I: {}, P: {}>
   }
 }
 
+export class CaptureParam<I: {}, P: {}>
+  implements Middleware<I, $Merge<I, $ExtractTypes<P>>> {
+  param: P;
+  constructor(param: P) {
+    if (Object.keys(param).length != 1)
+      throw new Error("CaptureParam needs a singleton object");
+    this.param = param;
+  }
+  _visit<DataF: Function>(
+    visitor: Visitor<DataF>
+  ): ($Call<DataF, I>) => $Call<DataF, $Merge<I, $ExtractTypes<P>>> {
+    return visitor.handleCaptureParam(this.param);
+  }
+}
+
 export interface Endpoint<I: {}, O> {
   _visit<DataF: Function>(visitor: Visitor<DataF>): $Call<DataF, I>;
   append<I_new: {}>(middleware: Middleware<I, I_new>): Endpoint<I_new, O>;
   fragment(urlFragment: string): Endpoint<I, O>;
   queryParams<P: {}>(params: P): Endpoint<$Merge<I, $ExtractTypes<P>>, O>;
+  captureParam<P: {}>(param: P): Endpoint<$Merge<I, $ExtractTypes<P>>, O>;
 }
 
 export class EndpointImpl<I: {}, O> implements Endpoint<I, O> {
@@ -82,6 +101,10 @@ export class EndpointImpl<I: {}, O> implements Endpoint<I, O> {
 
   queryParams<P: {}>(params: P): Endpoint<$Merge<I, $ExtractTypes<P>>, O> {
     return this.append(new QueryParams(params));
+  }
+
+  captureParam<P: {}>(param: P): Endpoint<$Merge<I, $ExtractTypes<P>>, O> {
+    return this.append(new CaptureParam(param));
   }
 }
 

@@ -32,6 +32,13 @@ const clientDataVisitor: Recouple.Visitor<ClientDataF> = {
       ...data,
       queryParams: newQueryParams
     };
+  },
+  handleCaptureParam: captureParam => getData => input => {
+    const data = getData(input);
+    return {
+      ...data,
+      url: `${data.url}/${input[Object.keys(captureParam)[0]]}`
+    };
   }
 };
 
