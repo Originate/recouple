@@ -2,7 +2,7 @@
   "name": "example-backend",
   "version": "1.0.0",
   "private": true,
-  "main": "index.js",
+  "main": "entry.js",
   "devDependencies": {
     "babel-plugin-transform-flow-strip-types": "^6.22.0",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
@@ -19,6 +19,6 @@
     "check-all": "flow && yarn format-check",
     "format": "prettier --write '**/*.js'",
     "format-check": "prettier -l '**/*.js'",
-    "start": "node index.js"
+    "start": "node entry.js"
   }
 }
