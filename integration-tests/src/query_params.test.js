@@ -1,9 +1,9 @@
 // @flow
-import * as SafeAPI from "../";
-import * as T from "../type_rep";
-import * as Client from "../client";
-import * as Server from "../server";
-import * as TestUtils from "../test_utils";
+import * as SafeAPI from "safe-api";
+import * as T from "safe-api/lib/type_rep";
+import * as SafeFetch from "safe-api-fetch";
+import * as SafeKoa from "safe-api-koa";
+import * as TestUtils from "./test_utils";
 import fetch from "isomorphic-fetch";
 import Koa from "koa";
 
@@ -51,7 +51,7 @@ describe("for a GET endpoint with no parameters", () => {
       handler: testHandler
     });
     const input = { first: "First", last: "Last" };
-    const resp = await Client.safeGet(
+    const resp = await SafeFetch.safeGet(
       `http://localhost:${server.address().port}`,
       testEndpoint,
       input
@@ -71,7 +71,7 @@ describe("for a GET endpoint with no parameters", () => {
       extraneous2: "extra"
     };
     const baseURL = `http://localhost:${server.address().port}`;
-    await Client.safeGet(baseURL, testEndpoint, input);
+    await SafeFetch.safeGet(baseURL, testEndpoint, input);
     const expectedURL = `${baseURL}/foo?first=First&last=Last`;
     expect(fetch).toHaveBeenLastCalledWith(expectedURL);
   });
@@ -152,14 +152,14 @@ describe("for a GET endpoint with optional query parameters", () => {
   });
 });
 
-// Server type tests
+// SafeKoa type tests
 () => {
   const app = new Koa();
 
   // it permits correct output types in handlers
   // ok
   app.use(
-    Server.safeGet(testEndpoint, async () => ({
+    SafeKoa.safeGet(testEndpoint, async () => ({
       first: "",
       last: "",
       full: ""
@@ -168,11 +168,11 @@ describe("for a GET endpoint with optional query parameters", () => {
 
   // it rejects invalid output types in handlers
   // $FlowFixMe
-  app.use(Server.safeGet(testEndpoint, async () => ({ first: "", last: "" })));
+  app.use(SafeKoa.safeGet(testEndpoint, async () => ({ first: "", last: "" })));
 
   // it permits correct input types in handlers
   app.use(
-    Server.safeGet(testEndpoint, async input => {
+    SafeKoa.safeGet(testEndpoint, async input => {
       // ok
       (input: { first: string, last: string });
       return { first: "", last: "", full: "" };
@@ -181,7 +181,7 @@ describe("for a GET endpoint with optional query parameters", () => {
 
   // it rejects invalid input types in handlers
   app.use(
-    Server.safeGet(testEndpoint, async input => {
+    SafeKoa.safeGet(testEndpoint, async input => {
       // $FlowFixMe
       (input: { first: string, last: string, asdf: number });
       return { first: "", last: "", full: "" };
@@ -189,13 +189,13 @@ describe("for a GET endpoint with optional query parameters", () => {
   );
 };
 
-// Client type tests
+// SafeFetch type tests
 () => {
   const baseURL = "http://localhost:8080";
 
   // it permits correct output types in handlers
   // ok
-  (Client.safeGet(baseURL, testEndpoint, { first: "", last: "" }): Promise<{
+  (SafeFetch.safeGet(baseURL, testEndpoint, { first: "", last: "" }): Promise<{
     first: string,
     last: string,
     full: string
@@ -203,7 +203,7 @@ describe("for a GET endpoint with optional query parameters", () => {
 
   // it rejects invalid output types in handlers
   // $FlowFixMe
-  (Client.safeGet(baseURL, testEndpoint, { first: "", last: "" }): Promise<{
+  (SafeFetch.safeGet(baseURL, testEndpoint, { first: "", last: "" }): Promise<{
     first: string,
     last: string,
     NotFull: number
@@ -211,5 +211,5 @@ describe("for a GET endpoint with optional query parameters", () => {
 
   // it permits correct input types in handlers
   // ok
-  Client.safeGet(baseURL, testEndpoint, { first: "", last: "" });
+  SafeFetch.safeGet(baseURL, testEndpoint, { first: "", last: "" });
 };

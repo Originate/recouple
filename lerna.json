@@ -3,7 +3,10 @@
   "npmClient": "yarn",
   "packages": [
       "example/*",
-      "safe-api"
+      "integration-tests",
+      "safe-api",
+      "safe-api-fetch",
+      "safe-api-koa"
   ],
   "useWorkspaces": true,
   "version": "0.0.0"

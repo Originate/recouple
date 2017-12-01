@@ -1,8 +1,8 @@
 // @flow
-import * as SafeAPI from "../";
-import * as Client from "../client";
-import * as Server from "../server";
-import * as TestUtils from "../test_utils";
+import * as SafeAPI from "safe-api";
+import * as SafeFetch from "safe-api-fetch";
+import * as SafeKoa from "safe-api-koa";
+import * as TestUtils from "./test_utils";
 import Koa from "koa";
 import fetch from "isomorphic-fetch";
 
@@ -30,7 +30,7 @@ describe("for a GET endpoint with no parameters", () => {
       endpoint: testEndpoint,
       handler: testHandler
     });
-    const resp = await Client.safeGet(
+    const resp = await SafeFetch.safeGet(
       `http://localhost:${server.address().port}`,
       testEndpoint,
       {}
@@ -39,21 +39,21 @@ describe("for a GET endpoint with no parameters", () => {
   });
 });
 
-// Server type tests
+// SafeKoa type tests
 () => {
   const app = new Koa();
 
   // it permits correct output types in handlers
   // ok
-  app.use(Server.safeGet(testEndpoint, async () => "foo"));
+  app.use(SafeKoa.safeGet(testEndpoint, async () => "foo"));
 
   // it rejects invalid output types in handlers
   // $FlowFixMe
-  app.use(Server.safeGet(testEndpoint, async () => 1));
+  app.use(SafeKoa.safeGet(testEndpoint, async () => 1));
 
   // it permits correct input types in handlers
   app.use(
-    Server.safeGet(testEndpoint, async input => {
+    SafeKoa.safeGet(testEndpoint, async input => {
       // ok
       (input: {});
       return "foo";
@@ -62,7 +62,7 @@ describe("for a GET endpoint with no parameters", () => {
 
   // it rejects invalid input types in handlers
   app.use(
-    Server.safeGet(testEndpoint, async input => {
+    SafeKoa.safeGet(testEndpoint, async input => {
       // $FlowFixMe
       (input: { foo: string });
       return "foo";
@@ -70,19 +70,19 @@ describe("for a GET endpoint with no parameters", () => {
   );
 };
 
-// Client type tests
+// SafeFetch type tests
 () => {
   const baseURL = "http://localhost:8080";
 
   // it permits correct output types in handlers
   // ok
-  (Client.safeGet(baseURL, testEndpoint, {}): Promise<string>);
+  (SafeFetch.safeGet(baseURL, testEndpoint, {}): Promise<string>);
 
   // it rejects invalid output types in handlers
   // $FlowFixMe
-  (Client.safeGet(baseURL, testEndpoint, {}): Promise<number>);
+  (SafeFetch.safeGet(baseURL, testEndpoint, {}): Promise<number>);
 
   // it permits correct input types in handlers
   // ok
-  Client.safeGet(baseURL, testEndpoint, {});
+  SafeFetch.safeGet(baseURL, testEndpoint, {});
 };

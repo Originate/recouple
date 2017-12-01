@@ -1,6 +1,6 @@
 // @flow
 import "babel-polyfill";
-import * as SafeAPIClient from "safe-api/src/client";
+import * as SafeFetch from "safe-api-fetch";
 import * as API from "example-shared/api";
 
 const buttonElement = document.createElement("button");
@@ -12,7 +12,7 @@ const responseElement = document.createElement("div");
 
 buttonElement.addEventListener("click", async () => {
   try {
-    const response = await SafeAPIClient.safeGet("/api", API.hello, {});
+    const response = await SafeFetch.safeGet("/api", API.hello, {});
     responseElement.textContent = response;
   } catch (e) {
     responseElement.textContent = e;

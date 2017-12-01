@@ -1,11 +1,10 @@
 {
-  "name": "safe-api",
+  "name": "integration-tests",
+  "private": true,
   "version": "0.1.0",
   "description": "typesafe api routing",
-  "main": "lib/index.js",
   "license": "MIT",
   "devDependencies": {
-    "babel-cli": "^6.26.0",
     "babel-eslint": "^8.0.2",
     "babel-plugin-transform-flow-strip-types": "^6.22.0",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
@@ -13,21 +12,21 @@
     "eslint": "^4.11.0",
     "eslint-plugin-flowtype": "^2.39.1",
     "eslint-plugin-jest": "^21.3.2",
-    "flow-copy-source": "^1.2.1",
     "jest": "^21.2.1",
     "prettier": "^1.8.2"
   },
   "dependencies": {
-    "babel-core": "^6.26.0",
     "isomorphic-fetch": "^2.2.1",
     "koa": "^2.4.1",
-    "koa-route": "^3.2.0"
+    "safe-api": "0.1.0",
+    "safe-api-fetch": "0.1.0",
+    "safe-api-koa": "0.1.0"
+  },
+  "jest": {
+    "setupTestFrameworkScriptFile": "./src/test_utils.js"
   },
   "scripts": {
-    "build": "yarn build-babel && yarn build-flow",
-    "build-babel": "babel src --out-dir lib --ignore '**/*.test.js'",
-    "build-flow": "flow-copy-source --ignore '**/*.test.js' src lib",
-    "check-all": "flow && yarn format-check && yarn lint && yarn jest",
+    "check-all": "flow && yarn format-check && yarn lint",
     "lint": "eslint src/**/*.js",
     "jest": "jest",
     "format": "prettier --write 'src/**/*.js'",
