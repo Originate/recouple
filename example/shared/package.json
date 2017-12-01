@@ -9,7 +9,7 @@
     "prettier": "^1.8.2"
   },
   "dependencies": {
-    "safe-api": "0.1.0"
+    "recouple": "0.1.0"
   },
   "scripts": {
     "check-all": "flow && yarn format-check",

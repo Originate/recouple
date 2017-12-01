@@ -1,12 +1,12 @@
 // @flow
-import * as SafeKoa from "safe-api-koa";
+import * as RecoupleKoa from "recouple-koa";
 import * as API from "example-shared/api";
 import Koa from "koa";
 
 export function main() {
   const app = new Koa();
   app.use(
-    SafeKoa.safeGet(API.hello, async () => {
+    RecoupleKoa.safeGet(API.hello, async () => {
       return "world";
     })
   );

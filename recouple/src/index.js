@@ -11,7 +11,7 @@ interface Middleware<I_old: {}, I: {}> {
    For the type-level application (F A) we use $Call<F, A>.
 
    The support for the conversion rule is not full, so some explicit fiddling
-   might be needed to get the types to work out -- look at safe-api-fetch for
+   might be needed to get the types to work out -- look at recouple-fetch for
    example.
   */
 

@@ -1,12 +1,12 @@
 // @flow
-import * as SafeAPI from "safe-api";
-import * as SafeFetch from "safe-api-fetch";
-import * as SafeKoa from "safe-api-koa";
+import * as Recouple from "recouple";
+import * as RecoupleFetch from "recouple-fetch";
+import * as RecoupleKoa from "recouple-koa";
 import * as TestUtils from "./test_utils";
 import Koa from "koa";
 import fetch from "isomorphic-fetch";
 
-const testEndpoint: SafeAPI.Endpoint<{}, string> = SafeAPI.endpoint()
+const testEndpoint: Recouple.Endpoint<{}, string> = Recouple.endpoint()
   .fragment("hello")
   .fragment("world");
 
@@ -30,7 +30,7 @@ describe("for a GET endpoint with no parameters", () => {
       endpoint: testEndpoint,
       handler: testHandler
     });
-    const resp = await SafeFetch.safeGet(
+    const resp = await RecoupleFetch.safeGet(
       `http://localhost:${server.address().port}`,
       testEndpoint,
       {}
@@ -39,21 +39,21 @@ describe("for a GET endpoint with no parameters", () => {
   });
 });
 
-// SafeKoa type tests
+// RecoupleKoa type tests
 () => {
   const app = new Koa();
 
   // it permits correct output types in handlers
   // ok
-  app.use(SafeKoa.safeGet(testEndpoint, async () => "foo"));
+  app.use(RecoupleKoa.safeGet(testEndpoint, async () => "foo"));
 
   // it rejects invalid output types in handlers
   // $FlowFixMe
-  app.use(SafeKoa.safeGet(testEndpoint, async () => 1));
+  app.use(RecoupleKoa.safeGet(testEndpoint, async () => 1));
 
   // it permits correct input types in handlers
   app.use(
-    SafeKoa.safeGet(testEndpoint, async input => {
+    RecoupleKoa.safeGet(testEndpoint, async input => {
       // ok
       (input: {});
       return "foo";
@@ -62,7 +62,7 @@ describe("for a GET endpoint with no parameters", () => {
 
   // it rejects invalid input types in handlers
   app.use(
-    SafeKoa.safeGet(testEndpoint, async input => {
+    RecoupleKoa.safeGet(testEndpoint, async input => {
       // $FlowFixMe
       (input: { foo: string });
       return "foo";
@@ -70,19 +70,19 @@ describe("for a GET endpoint with no parameters", () => {
   );
 };
 
-// SafeFetch type tests
+// RecoupleFetch type tests
 () => {
   const baseURL = "http://localhost:8080";
 
   // it permits correct output types in handlers
   // ok
-  (SafeFetch.safeGet(baseURL, testEndpoint, {}): Promise<string>);
+  (RecoupleFetch.safeGet(baseURL, testEndpoint, {}): Promise<string>);
 
   // it rejects invalid output types in handlers
   // $FlowFixMe
-  (SafeFetch.safeGet(baseURL, testEndpoint, {}): Promise<number>);
+  (RecoupleFetch.safeGet(baseURL, testEndpoint, {}): Promise<number>);
 
   // it permits correct input types in handlers
   // ok
-  SafeFetch.safeGet(baseURL, testEndpoint, {});
+  RecoupleFetch.safeGet(baseURL, testEndpoint, {});
 };

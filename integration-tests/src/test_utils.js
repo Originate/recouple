@@ -1,6 +1,6 @@
 // @flow
-import * as SafeAPI from "safe-api";
-import * as Server from "safe-api-koa";
+import * as Recouple from "recouple";
+import * as Server from "recouple-koa";
 import Koa from "koa";
 
 jest.mock("isomorphic-fetch", () => {
@@ -25,7 +25,7 @@ export function cleanupWith(fn: () => any) {
 }
 
 export function makeServer<I: {}, O>(data: {
-  endpoint: SafeAPI.Endpoint<I, O>,
+  endpoint: Recouple.Endpoint<I, O>,
   handler: Server.Handler<I, O>
 }) {
   const { endpoint, handler } = data;

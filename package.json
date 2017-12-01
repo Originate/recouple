@@ -3,9 +3,9 @@
     "workspaces": [
         "example/*",
         "integration-tests",
-        "safe-api",
-        "safe-api-fetch",
-        "safe-api-koa"
+        "recouple",
+        "recouple-fetch",
+        "recouple-koa"
     ],
     "devDependencies": {
         "flow-bin": "^0.55.0",

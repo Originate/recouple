@@ -4,9 +4,9 @@
   "packages": [
       "example/*",
       "integration-tests",
-      "safe-api",
-      "safe-api-fetch",
-      "safe-api-koa"
+      "recouple",
+      "recouple-fetch",
+      "recouple-koa"
   ],
   "useWorkspaces": true,
   "version": "0.0.0"

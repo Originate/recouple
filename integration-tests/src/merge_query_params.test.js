@@ -1,17 +1,17 @@
 // @flow
-import * as SafeAPI from "safe-api";
-import * as T from "safe-api/lib/type_rep";
-import * as SafeFetch from "safe-api-fetch";
+import * as Recouple from "recouple";
+import * as T from "recouple/lib/type_rep";
+import * as RecoupleFetch from "recouple-fetch";
 import * as TestUtils from "./test_utils";
 import * as fetch from "isomorphic-fetch";
 
-const testEndpoint: SafeAPI.Endpoint<
+const testEndpoint: Recouple.Endpoint<
   {
     x: string,
     y: string
   },
   string
-> = SafeAPI.endpoint()
+> = Recouple.endpoint()
   .fragment("foo")
   .queryParams({
     x: T.string
@@ -32,7 +32,7 @@ describe("for an endpoint with multiple queryString middleware", () => {
     });
     const baseURL = `http://localhost:${server.address().port}`;
     const input = { x: "X", y: "Y" };
-    await SafeFetch.safeGet(baseURL, testEndpoint, input);
+    await RecoupleFetch.safeGet(baseURL, testEndpoint, input);
     const expectedURL = `${baseURL}/foo?x=X&y=Y`;
     expect(fetch).toHaveBeenLastCalledWith(expectedURL);
   });
