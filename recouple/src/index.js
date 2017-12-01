@@ -28,7 +28,7 @@ export type Visitor<DataF: Function> = {|
   handleQueryParams: <P: {}>(
     P
   ) => <I: {}>($Call<DataF, I>) => $Call<DataF, $Merge<I, $ExtractTypes<P>>>,
-  handleCaptureParam: <P: {}>(
+  handleCaptureParam: <P: { [string]: TypeRep<string> }>(
     P
   ) => <I: {}>($Call<DataF, I>) => $Call<DataF, $Merge<I, $ExtractTypes<P>>>
 |};
@@ -61,7 +61,7 @@ export class QueryParams<I: {}, P: {}>
   }
 }
 
-export class CaptureParam<I: {}, P: {}>
+export class CaptureParam<I: {}, P: { [string]: TypeRep<string> }>
   implements Middleware<I, $Merge<I, $ExtractTypes<P>>> {
   param: P;
   constructor(param: P) {
@@ -81,7 +81,9 @@ export interface Endpoint<I: {}, O> {
   append<I_new: {}>(middleware: Middleware<I, I_new>): Endpoint<I_new, O>;
   fragment(urlFragment: string): Endpoint<I, O>;
   queryParams<P: {}>(params: P): Endpoint<$Merge<I, $ExtractTypes<P>>, O>;
-  captureParam<P: {}>(param: P): Endpoint<$Merge<I, $ExtractTypes<P>>, O>;
+  captureParam<P: { [string]: TypeRep<string> }>(
+    param: P
+  ): Endpoint<$Merge<I, $ExtractTypes<P>>, O>;
 }
 
 export class EndpointImpl<I: {}, O> implements Endpoint<I, O> {
