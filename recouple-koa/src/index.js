@@ -54,7 +54,7 @@ export function safeGet<I: {}, O>(
   handler: Handler<I, O>
 ): KoaMiddleware {
   const data = extractServerData(endpoint);
-  return KoaRoute.get(data.url, async (context, ...args: Array<any>) => {
+  return KoaRoute.get(data.url, async (context, ...args) => {
     const input: any = {};
     const lastIndex = data.captureParams.length;
     const next = args[lastIndex];
