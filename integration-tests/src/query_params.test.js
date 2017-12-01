@@ -1,13 +1,13 @@
 // @flow
-import * as SafeAPI from "safe-api";
-import * as T from "safe-api/lib/type_rep";
-import * as SafeFetch from "safe-api-fetch";
-import * as SafeKoa from "safe-api-koa";
+import * as Recouple from "recouple";
+import * as T from "recouple/lib/type_rep";
+import * as RecoupleFetch from "recouple-fetch";
+import * as RecoupleKoa from "recouple-koa";
 import * as TestUtils from "./test_utils";
 import fetch from "isomorphic-fetch";
 import Koa from "koa";
 
-const testEndpoint: SafeAPI.Endpoint<
+const testEndpoint: Recouple.Endpoint<
   {
     first: string,
     last: string
@@ -17,7 +17,7 @@ const testEndpoint: SafeAPI.Endpoint<
     last: string,
     full: string
   }
-> = SafeAPI.endpoint()
+> = Recouple.endpoint()
   .fragment("foo")
   .queryParams({
     first: T.string,
@@ -51,7 +51,7 @@ describe("for a GET endpoint with no parameters", () => {
       handler: testHandler
     });
     const input = { first: "First", last: "Last" };
-    const resp = await SafeFetch.safeGet(
+    const resp = await RecoupleFetch.safeGet(
       `http://localhost:${server.address().port}`,
       testEndpoint,
       input
@@ -71,7 +71,7 @@ describe("for a GET endpoint with no parameters", () => {
       extraneous2: "extra"
     };
     const baseURL = `http://localhost:${server.address().port}`;
-    await SafeFetch.safeGet(baseURL, testEndpoint, input);
+    await RecoupleFetch.safeGet(baseURL, testEndpoint, input);
     const expectedURL = `${baseURL}/foo?first=First&last=Last`;
     expect(fetch).toHaveBeenLastCalledWith(expectedURL);
   });
@@ -93,14 +93,14 @@ describe("for a GET endpoint with no parameters", () => {
   });
 });
 
-// SafeKoa type tests
+// RecoupleKoa type tests
 () => {
   const app = new Koa();
 
   // it permits correct output types in handlers
   // ok
   app.use(
-    SafeKoa.safeGet(testEndpoint, async () => ({
+    RecoupleKoa.safeGet(testEndpoint, async () => ({
       first: "",
       last: "",
       full: ""
@@ -108,12 +108,14 @@ describe("for a GET endpoint with no parameters", () => {
   );
 
   // it rejects invalid output types in handlers
-  // $FlowFixMe
-  app.use(SafeKoa.safeGet(testEndpoint, async () => ({ first: "", last: "" })));
+  app.use(
+    // $FlowFixMe
+    RecoupleKoa.safeGet(testEndpoint, async () => ({ first: "", last: "" }))
+  );
 
   // it permits correct input types in handlers
   app.use(
-    SafeKoa.safeGet(testEndpoint, async input => {
+    RecoupleKoa.safeGet(testEndpoint, async input => {
       // ok
       (input: { first: string, last: string });
       return { first: "", last: "", full: "" };
@@ -122,7 +124,7 @@ describe("for a GET endpoint with no parameters", () => {
 
   // it rejects invalid input types in handlers
   app.use(
-    SafeKoa.safeGet(testEndpoint, async input => {
+    RecoupleKoa.safeGet(testEndpoint, async input => {
       // $FlowFixMe
       (input: { first: string, last: string, asdf: number });
       return { first: "", last: "", full: "" };
@@ -130,21 +132,27 @@ describe("for a GET endpoint with no parameters", () => {
   );
 };
 
-// SafeFetch type tests
+// RecoupleFetch type tests
 () => {
   const baseURL = "http://localhost:8080";
 
   // it permits correct output types in handlers
   // ok
-  (SafeFetch.safeGet(baseURL, testEndpoint, { first: "", last: "" }): Promise<{
+  (RecoupleFetch.safeGet(baseURL, testEndpoint, {
+    first: "",
+    last: ""
+  }): Promise<{
     first: string,
     last: string,
     full: string
   }>);
 
   // it rejects invalid output types in handlers
-  // $FlowFixMe
-  (SafeFetch.safeGet(baseURL, testEndpoint, { first: "", last: "" }): Promise<{
+  (RecoupleFetch.safeGet(baseURL, testEndpoint, {
+    first: "",
+    last: ""
+    // $FlowFixMe
+  }): Promise<{
     first: string,
     last: string,
     NotFull: number
@@ -152,5 +160,5 @@ describe("for a GET endpoint with no parameters", () => {
 
   // it permits correct input types in handlers
   // ok
-  SafeFetch.safeGet(baseURL, testEndpoint, { first: "", last: "" });
+  RecoupleFetch.safeGet(baseURL, testEndpoint, { first: "", last: "" });
 };

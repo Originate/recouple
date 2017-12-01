@@ -18,9 +18,9 @@
   "dependencies": {
     "isomorphic-fetch": "^2.2.1",
     "koa": "^2.4.1",
-    "safe-api": "0.1.0",
-    "safe-api-fetch": "0.1.0",
-    "safe-api-koa": "0.1.0"
+    "recouple": "0.1.0",
+    "recouple-fetch": "0.1.0",
+    "recouple-koa": "0.1.0"
   },
   "jest": {
     "setupTestFrameworkScriptFile": "./src/test_utils.js"

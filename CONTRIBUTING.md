@@ -1,4 +1,4 @@
-# Contributing to safe-api:
+# Contributing to Recouple:
 
 ## Bugs
 If the bug doesn't already exist, file the bug in Github issues. Make sure that you include steps to reproduce the bug.

@@ -1,4 +1,4 @@
-# Barebones example application with safe-api
+# Barebones example application with recouple
 
 ## Run:
 

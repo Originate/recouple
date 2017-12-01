@@ -1,7 +1,5 @@
 // @flow
 
-import * as SafeAPI from "safe-api";
+import { type Endpoint, endpoint } from "recouple";
 
-export const hello: SafeAPI.Endpoint<{}, string> = SafeAPI.endpoint().fragment(
-  "hello"
-);
+export const hello: Endpoint<{}, string> = endpoint().fragment("hello");
