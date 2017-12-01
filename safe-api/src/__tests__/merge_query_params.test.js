@@ -47,10 +47,10 @@ const testOptionalEndpoint: SafeAPI.Endpoint<
   .fragment("foo")
   .queryParams({
     x: T.maybeString
-  })
+  });
 
 const testOptionalHandler = async input => {
-  return input.x ? input.x.toString() : ''
+  return input.x ? input.x.toString() : "";
 };
 
 describe("for an endpoint with optional queryString middleware", () => {
@@ -64,7 +64,7 @@ describe("for an endpoint with optional queryString middleware", () => {
     await Client.safeGet(baseURL, testOptionalEndpoint, input);
     const expectedURL = `${baseURL}/foo?x=X`;
     expect(fetch).toHaveBeenLastCalledWith(expectedURL);
-  })
+  });
 
   describe("for null parameters", () => {
     it("will serialize null parameters to the empty string", async () => {
@@ -77,7 +77,7 @@ describe("for an endpoint with optional queryString middleware", () => {
       await Client.safeGet(baseURL, testOptionalEndpoint, input);
       const expectedURL = `${baseURL}/foo?x=`;
       expect(fetch).toHaveBeenLastCalledWith(expectedURL);
-    })
+    });
 
     it("will remove undefined parameters", async () => {
       const server = TestUtils.makeServer({
@@ -89,6 +89,6 @@ describe("for an endpoint with optional queryString middleware", () => {
       await Client.safeGet(baseURL, testOptionalEndpoint, input);
       const expectedURL = `${baseURL}/foo?`;
       expect(fetch).toHaveBeenLastCalledWith(expectedURL);
-    })
-  })
-})
+    });
+  });
+});

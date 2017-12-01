@@ -93,6 +93,65 @@ describe("for a GET endpoint with no parameters", () => {
   });
 });
 
+const testOptionalEndpoint: SafeAPI.Endpoint<
+  {
+    x: ?string,
+    y: string
+  },
+  {
+    x: ?string,
+    y: string
+  }
+> = SafeAPI.endpoint()
+  .fragment("foo")
+  .queryParams({
+    x: T.maybeString,
+    y: T.string
+  });
+
+const testOptionalHandler = async input => {
+  return {
+    x: input.x ? input.x.toString() : null,
+    y: input.y
+  };
+};
+
+describe("for a GET endpoint with optional query parameters", () => {
+  let server;
+  beforeEach(() => {
+    server = TestUtils.makeServer({
+      endpoint: testOptionalEndpoint,
+      handler: testOptionalHandler
+    });
+  });
+
+  test("server can parse the input when present", async () => {
+    const resp = await fetch(
+      `http://localhost:${server.address().port}/foo?x=X&y=Y`
+    );
+    const json = await resp.json();
+    expect(json).toEqual({ x: "X", y: "Y" });
+  });
+
+  test("server will parse null inputs", async () => {
+    const resp = await fetch(
+      `http://localhost:${server.address().port}/foo?x=&y=Y`
+    );
+    const json = await resp.json();
+    expect(json).toEqual({ x: null, y: "Y" });
+  });
+
+  test("server will accept absent optional inputs", async () => {
+    const resp = await fetch(
+      `http://localhost:${server.address().port}/foo?y=Y`
+    );
+    const json = await resp.json();
+
+    expect(json).toEqual({ x: null, y: "Y" });
+    expect(Object.keys(json)).toEqual(["x", "y"]);
+  });
+});
+
 // Server type tests
 () => {
   const app = new Koa();
