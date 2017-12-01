@@ -1,6 +1,6 @@
 // @flow
 import "babel-polyfill";
-import * as RecoupleFetch from "recouple-fetch";
+import { safeGet } from "recouple-fetch";
 import * as API from "example-shared/api";
 
 const buttonElement = document.createElement("button");
@@ -12,7 +12,7 @@ const responseElement = document.createElement("div");
 
 buttonElement.addEventListener("click", async () => {
   try {
-    const response = await RecoupleFetch.safeGet("/api", API.hello, {});
+    const response = await safeGet("/api", API.hello, {});
     responseElement.textContent = response;
   } catch (e) {
     responseElement.textContent = e;

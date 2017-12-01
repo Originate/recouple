@@ -1,8 +1,5 @@
 // @flow
 
-import * as Recouple from "recouple";
+import { type Endpoint, endpoint } from "recouple";
 
-export const hello: Recouple.Endpoint<
-  {},
-  string
-> = Recouple.endpoint().fragment("hello");
+export const hello: Endpoint<{}, string> = endpoint().fragment("hello");
