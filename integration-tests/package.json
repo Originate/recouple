@@ -1,7 +1,7 @@
 {
   "name": "integration-tests",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0-alpha.3df68a42",
   "description": "typesafe api routing",
   "license": "MIT",
   "devDependencies": {
@@ -18,9 +18,9 @@
   "dependencies": {
     "isomorphic-fetch": "^2.2.1",
     "koa": "^2.4.1",
-    "recouple": "^0.1.0",
-    "recouple-fetch": "^0.1.0",
-    "recouple-koa": "^0.1.0"
+    "recouple": "^0.2.0-alpha.3df68a42",
+    "recouple-fetch": "^0.2.0-alpha.3df68a42",
+    "recouple-koa": "^0.2.0-alpha.3df68a42"
   },
   "jest": {
     "setupTestFrameworkScriptFile": "./src/test_utils.js"
