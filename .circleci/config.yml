@@ -21,7 +21,7 @@ jobs:
       - checkout
       - run:
           name: Set up auth token
-          command: npm set //registry.npmjs.org/:_authToken $AUTH_TOKEN
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
       - run:
           name: Install dependencies
           command: yarn
