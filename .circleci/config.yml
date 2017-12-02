@@ -17,9 +17,6 @@ jobs:
   deploy:
     docker:
       - image: node:8.7.0
-    add-ssh-keys:
-      fingerprints:
-        - "35:ed:9b:95:c9:aa:c9:9c:47:df:04:28:0e:97:59:a8" # read-write github.com
     steps:
       - checkout
       - run:
@@ -37,6 +34,9 @@ jobs:
       - run:
           name: Build packages
           command: yarn build
+      - add-ssh-keys:
+          fingerprints:
+            - "35:ed:9b:95:c9:aa:c9:9c:47:df:04:28:0e:97:59:a8" # read-write github.com
       - run:
           name: Publish packages
           command: ./scripts/ci-publish.sh
