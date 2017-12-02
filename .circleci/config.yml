@@ -6,7 +6,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install dependencies
+          name: Install package dependencies
           command: yarn
       - run:
           name: Build packages
@@ -23,14 +23,20 @@ jobs:
           name: Set up auth token
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
       - run:
-          name: Install dependencies
+          name: Set up git identity
+          command: git config --global user.email "circleci@circleci" && git config --global user.name "circleci"
+      - run:
+          name: Install deployment dependencies
+          command: apt-get update && apt-get install jq
+      - run:
+          name: Install package dependencies
           command: yarn
       - run:
           name: Build packages
           command: yarn build
       - run:
-          name: Publishes packages
-          command: ./node_modules/.bin/lerna publish --skip-git --canary --yes
+          name: Publish packages
+          command: ./scripts/ci-publish.sh
 
 workflows:
   version: 2
