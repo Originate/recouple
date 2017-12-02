@@ -30,7 +30,7 @@ jobs:
           command: yarn build
       - run:
           name: Publishes packages
-          command: yarn lerna publish --skip-git --canary --yes
+          command: ./node_modules/.bin/lerna publish --skip-git --canary --yes
 
 workflows:
   version: 2
