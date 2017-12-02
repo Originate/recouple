@@ -14,3 +14,17 @@ jobs:
       - run:
           name: Checks
           command: yarn check-all
+  publish:
+    docker:
+      - image: node:8.7.0
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: yarn
+      - run:
+          name: Build packages
+          command: yarn build
+      - run:
+          name: Publishes packages
+          command: yarn lerna --canary --yes
