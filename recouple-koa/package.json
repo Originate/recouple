@@ -1,6 +1,6 @@
 {
   "name": "recouple-koa",
-  "version": "0.2.0-alpha.3df68a42",
+  "version": "0.2.0-alpha.b10429a8",
   "description": "typesafe api routing",
   "repository": "Originate/recouple",
   "main": "lib/index.js",
@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "isomorphic-fetch": "^2.2.1",
-    "recouple": "^0.2.0-alpha.3df68a42"
+    "recouple": "^0.2.0-alpha.b10429a8"
   },
   "scripts": {
     "build": "yarn build-babel && yarn build-flow",
