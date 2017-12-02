@@ -14,11 +14,14 @@ jobs:
       - run:
           name: Checks
           command: yarn check-all
-  publish:
+  deploy:
     docker:
       - image: node:8.7.0
     steps:
       - checkout
+      - run:
+          name: Set up auth token
+          command: npm set //registry.npmjs.org/:_authToken $AUTH_TOKEN
       - run:
           name: Install dependencies
           command: yarn
@@ -27,4 +30,16 @@ jobs:
           command: yarn build
       - run:
           name: Publishes packages
-          command: yarn lerna --canary --yes
+          command: yarn lerna publish --skip-git --canary --yes
+
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
+          # filters:
+          #   branches:
+          #     only: master
