@@ -1,5 +1,5 @@
 #!/bin/sh
-./node_modules/.bin/lerna publish --skip-git --canary --yes
+./node_modules/.bin/lerna publish --skip-git --yes
 git ls-files | grep '\package.json$' | xargs git add
 VERSION=$(cd recouple; yarn info --json | jq '.data.version' --raw-output)
 git commit  -m "[ci skip] version bump: $VERSION"
