@@ -1,6 +1,6 @@
 {
   "name": "example-frontend",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "main": "index.js",
   "devDependencies": {
@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "babel-polyfill": "^6.26.0",
-    "recouple-fetch": "^0.1.0"
+    "recouple-fetch": "0.1.0"
   },
   "scripts": {
     "check-all": "flow && yarn format-check",

@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "isomorphic-fetch": "^2.2.1",
-    "recouple": "^0.1.0"
+    "recouple": "0.1.0"
   },
   "scripts": {
     "build": "yarn build-babel && yarn build-flow",
