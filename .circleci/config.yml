@@ -21,7 +21,7 @@ jobs:
           root: /tmp/project
           paths: .
 
-  deploy-canary:
+  publish-canary:
     docker:
       - image: node:8.7.0
     steps:
@@ -34,7 +34,7 @@ jobs:
           name: Publish packages
           command: cd /tmp/project && ./scripts/ci-publish-canary.sh
 
-  deploy-release:
+  publish-release:
     docker:
       - image: node:8.7.0
     steps:
@@ -47,7 +47,7 @@ jobs:
           name: Set up git identity
           command: git config --global user.email "circleci@circleci" && git config --global user.name "CircleCI"
       - run:
-          name: Install deployment dependencies
+          name: Install publishing dependencies
           command: apt-get update && apt-get install jq
       - add-ssh-keys:
           fingerprints:
@@ -58,17 +58,17 @@ jobs:
 
 workflows:
   version: 2
-  build-deploy:
+  build-publish:
     jobs:
       - check
-      - deploy-canary:
+      - publish-canary:
           requires:
             - check
           filters:
             branches:
               only:
                 - master
-      - deploy-release:
+      - publish-release:
           type: approval
           requires:
-            - deploy-canary
+            - publish-canary
