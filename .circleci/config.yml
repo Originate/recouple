@@ -1,12 +1,12 @@
 version: 2
 jobs:
-  build:
+  check:
     docker:
       - image: node:8.7.0
     steps:
       - checkout
       - run:
-          name: Install dependencies
+          name: Install package dependencies
           command: yarn
       - run:
           name: Build packages
@@ -14,3 +14,61 @@ jobs:
       - run:
           name: Checks
           command: yarn check-all
+      - run:
+          name: Initialize workspace
+          command: cp -R . /tmp/project
+      - persist_to_workspace:
+          root: /tmp/project
+          paths: .
+
+  deploy-canary:
+    docker:
+      - image: node:8.7.0
+    steps:
+      - attach_workspace:
+          at: /tmp/project
+      - run:
+          name: Set up NPM auth token
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+      - run:
+          name: Publish packages
+          command: cd /tmp/project && ./scripts/ci-publish-canary.sh
+
+  deploy-release:
+    docker:
+      - image: node:8.7.0
+    steps:
+      - attach_workspace:
+          at: /tmp/project
+      - run:
+          name: Set up NPM auth token
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+      - run:
+          name: Set up git identity
+          command: git config --global user.email "circleci@circleci" && git config --global user.name "CircleCI"
+      - run:
+          name: Install deployment dependencies
+          command: apt-get update && apt-get install jq
+      - add-ssh-keys:
+          fingerprints:
+            - "35:ed:9b:95:c9:aa:c9:9c:47:df:04:28:0e:97:59:a8" # read-write github.com
+      - run:
+          name: Publish packages
+          command: cd /tmp/project && ./scripts/ci-publish-release.sh
+
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - check
+      - deploy-canary:
+          requires:
+            - check
+          filters:
+            branches:
+              only:
+                - master
+      - deploy-release:
+          type: approval
+          requires:
+            - deploy-canary
