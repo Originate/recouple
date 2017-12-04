@@ -51,8 +51,8 @@ export async function safeGet<I: {}, O>(
   const { url, queryParams } = extractClientData(endpoint, input);
   let fullUrl = `${baseURL}${url}`;
   let definedParams = {};
-  for(const prop in queryParams){
-    if(queryParams[prop] !== undefined) {
+  for (const prop in queryParams) {
+    if (queryParams[prop] !== undefined) {
       definedParams[prop] = queryParams[prop];
     }
   }
