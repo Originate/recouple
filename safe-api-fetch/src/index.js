@@ -2,7 +2,6 @@
 import * as SafeAPI from "safe-api";
 import queryString from "querystring";
 import fetch from "isomorphic-fetch";
-import _ from "lodash";
 
 // eslint-disable-next-line no-unused-vars
 export type ClientData<I: {}> = {
@@ -52,7 +51,12 @@ export async function safeGet<I: {}, O>(
   const { url, queryParams } = extractClientData(endpoint, input);
   let fullUrl = `${baseURL}${url}`;
   if (Object.keys(queryParams).length > 0) {
-    const definedParams = _.pickBy(queryParams, param => param !== undefined);
+    let definedParams = {};
+    for(const prop in queryParams){
+      if(queryParams[prop] !== undefined) {
+        definedParams[prop] = queryParams[prop];
+      }
+    }
     const querystring = queryString.stringify(definedParams);
     fullUrl = `${fullUrl}?${querystring}`;
   }

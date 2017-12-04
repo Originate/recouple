@@ -111,7 +111,7 @@ const testOptionalEndpoint: SafeAPI.Endpoint<
 
 const testOptionalHandler = async input => {
   return {
-    x: input.x ? input.x.toString() : null,
+    x: input.x || null,
     y: input.y
   };
 };

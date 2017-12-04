@@ -50,7 +50,7 @@ const testOptionalEndpoint: SafeAPI.Endpoint<
   });
 
 const testOptionalHandler = async input => {
-  return input.x ? input.x.toString() : "";
+  return input.x || "";
 };
 
 describe("for an endpoint with optional queryString middleware", () => {
