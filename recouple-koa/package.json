@@ -1,7 +1,8 @@
 {
-  "name": "safe-api-koa",
+  "name": "recouple-koa",
   "version": "0.1.0",
   "description": "typesafe api routing",
+  "repository": "Originate/recouple",
   "main": "lib/index.js",
   "license": "MIT",
   "devDependencies": {
@@ -19,7 +20,7 @@
   },
   "dependencies": {
     "isomorphic-fetch": "^2.2.1",
-    "safe-api": "0.1.0"
+    "recouple": "^0.1.0"
   },
   "scripts": {
     "build": "yarn build-babel && yarn build-flow",

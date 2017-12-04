@@ -1,7 +1,8 @@
 {
-  "name": "safe-api",
+  "name": "recouple",
   "version": "0.1.0",
   "description": "typesafe api routing",
+  "repository": "Originate/recouple",
   "main": "lib/index.js",
   "license": "MIT",
   "devDependencies": {

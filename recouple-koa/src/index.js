@@ -1,6 +1,6 @@
 // @flow
-import * as SafeAPI from "safe-api";
-import { TypeRep } from "safe-api/lib/type_rep";
+import * as Recouple from "recouple";
+import { TypeRep } from "recouple/lib/type_rep";
 import type { Middleware as KoaMiddleware } from "koa";
 import KoaRoute from "koa-route";
 import queryString from "querystring";
@@ -15,7 +15,7 @@ export type ServerData<I: {}> = {
 
 type ServerDataF = <I: {}>(I) => ServerData<I>;
 
-const serverDataVisitor: SafeAPI.Visitor<ServerDataF> = {
+const serverDataVisitor: Recouple.Visitor<ServerDataF> = {
   init: () => {
     return { url: "", queryParams: {} };
   },
@@ -34,14 +34,14 @@ const serverDataVisitor: SafeAPI.Visitor<ServerDataF> = {
 };
 
 export function extractServerData<I: {}, O>(
-  endpoint: SafeAPI.Endpoint<I, O>
+  endpoint: Recouple.Endpoint<I, O>
 ): ServerData<I> {
-  const visit: SafeAPI.Visit<ServerDataF, I> = SafeAPI.makeVisit(endpoint);
+  const visit: Recouple.Visit<ServerDataF, I> = Recouple.makeVisit(endpoint);
   return visit(serverDataVisitor);
 }
 
 export function safeGet<I: {}, O>(
-  endpoint: SafeAPI.Endpoint<I, O>,
+  endpoint: Recouple.Endpoint<I, O>,
   handler: Handler<I, O>
 ): KoaMiddleware {
   const { url, queryParams: queryParamsRep } = extractServerData(endpoint);

@@ -1,5 +1,5 @@
 // @flow
-import * as SafeAPI from "safe-api";
+import * as Recouple from "recouple";
 import queryString from "querystring";
 import fetch from "isomorphic-fetch";
 
@@ -11,7 +11,7 @@ export type ClientData<I: {}> = {
 
 type ClientDataF = <I: {}>(I) => (input: I) => ClientData<I>;
 
-const clientDataVisitor: SafeAPI.Visitor<ClientDataF> = {
+const clientDataVisitor: Recouple.Visitor<ClientDataF> = {
   init: () => () => {
     return { url: "", queryParams: {} };
   },
@@ -36,16 +36,16 @@ const clientDataVisitor: SafeAPI.Visitor<ClientDataF> = {
 };
 
 export function extractClientData<I: {}, O>(
-  endpoint: SafeAPI.Endpoint<I, O>,
+  endpoint: Recouple.Endpoint<I, O>,
   input: I
 ): ClientData<I> {
-  const visit: SafeAPI.Visit<ClientDataF, I> = SafeAPI.makeVisit(endpoint);
+  const visit: Recouple.Visit<ClientDataF, I> = Recouple.makeVisit(endpoint);
   return visit(clientDataVisitor)(input);
 }
 
 export async function safeGet<I: {}, O>(
   baseURL: string,
-  endpoint: SafeAPI.Endpoint<I, O>,
+  endpoint: Recouple.Endpoint<I, O>,
   input: I
 ): Promise<O> {
   const { url, queryParams } = extractClientData(endpoint, input);
