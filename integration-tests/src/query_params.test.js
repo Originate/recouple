@@ -98,10 +98,7 @@ const testOptionalEndpoint: Recouple.Endpoint<
     x: ?string,
     y: string
   },
-  {
-    x: ?string,
-    y: string
-  }
+  string
 > = Recouple.endpoint()
   .fragment("foo")
   .queryParams({
@@ -109,12 +106,9 @@ const testOptionalEndpoint: Recouple.Endpoint<
     y: T.string
   });
 
-const testOptionalHandler = async input => {
-  return {
-    x: input.x || null,
-    y: input.y
-  };
-};
+const testOptionalHandler = jest.fn(async () => {
+  return "foo";
+});
 
 describe("for a GET endpoint with optional query parameters", () => {
   let server;
@@ -157,25 +151,27 @@ describe("for a GET endpoint with optional query parameters", () => {
       const resp = await fetch(
         `http://localhost:${server.address().port}/foo?x=X&y=Y`
       );
-      const json = await resp.json();
-      expect(json).toEqual({ x: "X", y: "Y" });
+      await resp.json();
+      expect(testOptionalHandler).toHaveBeenLastCalledWith({ x: "X", y: "Y" });
     });
 
     test("server will parse null inputs", async () => {
       const resp = await fetch(
         `http://localhost:${server.address().port}/foo?x=&y=Y`
       );
-      const json = await resp.json();
-      expect(json).toEqual({ x: null, y: "Y" });
+      await resp.json();
+      expect(testOptionalHandler).toHaveBeenLastCalledWith({ x: "", y: "Y" });
     });
 
     test("server will accept absent optional inputs", async () => {
       const resp = await fetch(
         `http://localhost:${server.address().port}/foo?y=Y`
       );
-      const json = await resp.json();
-
-      expect(json).toEqual({ x: null, y: "Y" });
+      await resp.json();
+      expect(testOptionalHandler).toHaveBeenLastCalledWith({
+        x: undefined,
+        y: "Y"
+      });
     });
   });
 });
