@@ -148,7 +148,6 @@ describe("for a GET endpoint with optional query parameters", () => {
     const json = await resp.json();
 
     expect(json).toEqual({ x: null, y: "Y" });
-    expect(Object.keys(json)).toEqual(["x", "y"]);
   });
 });
 

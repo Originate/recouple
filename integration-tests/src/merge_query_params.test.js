@@ -87,7 +87,7 @@ describe("for an endpoint with optional queryString middleware", () => {
       const baseURL = `http://localhost:${server.address().port}`;
       const input = { x: undefined };
       await RecoupleFetch.safeGet(baseURL, testOptionalEndpoint, input);
-      const expectedURL = `${baseURL}/foo?`;
+      const expectedURL = `${baseURL}/foo`;
       expect(fetch).toHaveBeenLastCalledWith(expectedURL);
     });
   });
