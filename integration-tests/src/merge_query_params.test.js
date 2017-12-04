@@ -38,12 +38,12 @@ describe("for an endpoint with multiple queryString middleware", () => {
   });
 });
 
-const testOptionalEndpoint: SafeAPI.Endpoint<
+const testOptionalEndpoint: Recouple.Endpoint<
   {
     x: ?string
   },
   string
-> = SafeAPI.endpoint()
+> = Recouple.endpoint()
   .fragment("foo")
   .queryParams({
     x: T.maybeString
@@ -61,7 +61,7 @@ describe("for an endpoint with optional queryString middleware", () => {
     });
     const baseURL = `http://localhost:${server.address().port}`;
     const input = { x: "X" };
-    await SafeFetch.safeGet(baseURL, testOptionalEndpoint, input);
+    await RecoupleFetch.safeGet(baseURL, testOptionalEndpoint, input);
     const expectedURL = `${baseURL}/foo?x=X`;
     expect(fetch).toHaveBeenLastCalledWith(expectedURL);
   });
@@ -74,7 +74,7 @@ describe("for an endpoint with optional queryString middleware", () => {
       });
       const baseURL = `http://localhost:${server.address().port}`;
       const input = { x: null };
-      await SafeFetch.safeGet(baseURL, testOptionalEndpoint, input);
+      await RecoupleFetch.safeGet(baseURL, testOptionalEndpoint, input);
       const expectedURL = `${baseURL}/foo?x=`;
       expect(fetch).toHaveBeenLastCalledWith(expectedURL);
     });
@@ -86,7 +86,7 @@ describe("for an endpoint with optional queryString middleware", () => {
       });
       const baseURL = `http://localhost:${server.address().port}`;
       const input = { x: undefined };
-      await SafeFetch.safeGet(baseURL, testOptionalEndpoint, input);
+      await RecoupleFetch.safeGet(baseURL, testOptionalEndpoint, input);
       const expectedURL = `${baseURL}/foo?`;
       expect(fetch).toHaveBeenLastCalledWith(expectedURL);
     });

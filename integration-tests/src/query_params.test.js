@@ -93,7 +93,7 @@ describe("for a GET endpoint with no parameters", () => {
   });
 });
 
-const testOptionalEndpoint: SafeAPI.Endpoint<
+const testOptionalEndpoint: Recouple.Endpoint<
   {
     x: ?string,
     y: string
@@ -102,7 +102,7 @@ const testOptionalEndpoint: SafeAPI.Endpoint<
     x: ?string,
     y: string
   }
-> = SafeAPI.endpoint()
+> = Recouple.endpoint()
   .fragment("foo")
   .queryParams({
     x: T.maybeString,
