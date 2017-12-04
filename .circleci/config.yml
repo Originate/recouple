@@ -68,7 +68,10 @@ workflows:
             branches:
               only:
                 - master
-      - publish-release:
+      - trigger-publish-release:
           type: approval
           requires:
             - publish-canary
+      - publish-release:
+          requires:
+            - trigger-publish-release
