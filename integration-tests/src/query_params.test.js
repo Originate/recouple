@@ -93,6 +93,51 @@ describe("for a GET endpoint with no parameters", () => {
   });
 });
 
+const testNumEndpoint: Recouple.Endpoint<
+  {
+    x: number
+  },
+  number
+> = Recouple.endpoint()
+  .fragment("foo")
+  .queryParams({
+    x: T.number
+  });
+
+const testNumHandler = jest.fn(async () => {
+  return 47;
+});
+
+describe("for a GET endpoint with number query parameters", () => {
+  let server;
+  beforeEach(() => {
+    server = TestUtils.makeServer({
+      endpoint: testNumEndpoint,
+      handler: testNumHandler
+    });
+  });
+
+  describe("for the recouple client", () => {
+    it("can be called with a query parameter", async () => {
+      const baseURL = `http://localhost:${server.address().port}`;
+      const input = { x: 47 };
+      await RecoupleFetch.safeGet(baseURL, testNumEndpoint, input);
+      const expectedURL = `${baseURL}/foo?x=47`;
+      expect(fetch).toHaveBeenLastCalledWith(expectedURL);
+    });
+  });
+
+  describe("for the recouple server", () => {
+    it("can be called with a query parameter", async () => {
+      const resp = await fetch(
+        `http://localhost:${server.address().port}/foo?x=47`
+      );
+      await resp.json();
+      expect(testNumEndpoint).toHaveBeenLastCalledWith({ x: 47 });
+    });
+  });
+});
+
 const testOptionalEndpoint: Recouple.Endpoint<
   {
     x: ?string,
