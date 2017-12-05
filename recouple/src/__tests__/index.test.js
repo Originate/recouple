@@ -79,3 +79,16 @@ describe("endpoint", () => {
     });
   });
 });
+
+// type-level tests
+() => {
+  // ok
+  (endpoint().queryParams({
+    id: T.option(T.string)
+  }): Recouple.Endpoint<{ id: ?string }, string>);
+
+  // $FlowFixMe
+  (endpoint().queryParams({
+    id: T.option(T.string)
+  }): Recouple.Endpoint<{ id: string }, string>);
+};

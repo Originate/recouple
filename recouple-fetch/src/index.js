@@ -57,8 +57,14 @@ export async function safeGet<I: {}, O>(
 ): Promise<O> {
   const { url, queryParams } = extractClientData(endpoint, input);
   let fullUrl = `${baseURL}${url}`;
-  if (Object.keys(queryParams).length > 0) {
-    const querystring = queryString.stringify(queryParams);
+  let definedParams = {};
+  for (const prop in queryParams) {
+    if (queryParams[prop] != null) {
+      definedParams[prop] = queryParams[prop];
+    }
+  }
+  if (Object.keys(definedParams).length > 0) {
+    const querystring = queryString.stringify(definedParams);
     fullUrl = `${fullUrl}?${querystring}`;
   }
   const resp = await fetch(fullUrl);

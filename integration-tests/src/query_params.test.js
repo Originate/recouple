@@ -93,6 +93,97 @@ describe("for a GET endpoint with no parameters", () => {
   });
 });
 
+const testOptionalEndpoint: Recouple.Endpoint<
+  {
+    x: ?string,
+    y: string
+  },
+  string
+> = Recouple.endpoint()
+  .fragment("foo")
+  .queryParams({
+    x: T.option(T.string),
+    y: T.string
+  });
+
+const testOptionalHandler = jest.fn(async () => {
+  return "foo";
+});
+
+describe("for a GET endpoint with optional query parameters", () => {
+  let server;
+  beforeEach(() => {
+    server = TestUtils.makeServer({
+      endpoint: testOptionalEndpoint,
+      handler: testOptionalHandler
+    });
+  });
+  describe("for the recouple client", () => {
+    it("can be called with a query parameter", async () => {
+      const baseURL = `http://localhost:${server.address().port}`;
+      const input = { x: "X", y: "Y" };
+      await RecoupleFetch.safeGet(baseURL, testOptionalEndpoint, input);
+      const expectedURL = `${baseURL}/foo?x=X&y=Y`;
+      expect(fetch).toHaveBeenLastCalledWith(expectedURL);
+    });
+
+    describe("for null parameters", () => {
+      it("will strip null parameters from the query string", async () => {
+        const baseURL = `http://localhost:${server.address().port}`;
+        const input = { x: null, y: "Y" };
+        await RecoupleFetch.safeGet(baseURL, testOptionalEndpoint, input);
+        const expectedURL = `${baseURL}/foo?y=Y`;
+        expect(fetch).toHaveBeenLastCalledWith(expectedURL);
+      });
+
+      it("will omit undefined parameters", async () => {
+        const baseURL = `http://localhost:${server.address().port}`;
+        const input = { x: undefined, y: "Y" };
+        await RecoupleFetch.safeGet(baseURL, testOptionalEndpoint, input);
+        const expectedURL = `${baseURL}/foo?y=Y`;
+        expect(fetch).toHaveBeenLastCalledWith(expectedURL);
+      });
+
+      it("will serialize empty string parameters to empty strings", async () => {
+        const baseURL = `http://localhost:${server.address().port}`;
+        const input = { x: "", y: "Y" };
+        await RecoupleFetch.safeGet(baseURL, testOptionalEndpoint, input);
+        const expectedURL = `${baseURL}/foo?x=&y=Y`;
+        expect(fetch).toHaveBeenLastCalledWith(expectedURL);
+      });
+    });
+  });
+
+  describe("for the recouple server", () => {
+    test("server can parse the input when present", async () => {
+      const resp = await fetch(
+        `http://localhost:${server.address().port}/foo?x=X&y=Y`
+      );
+      await resp.json();
+      expect(testOptionalHandler).toHaveBeenLastCalledWith({ x: "X", y: "Y" });
+    });
+
+    test("server will parse absent optional inputs as undefined", async () => {
+      const resp = await fetch(
+        `http://localhost:${server.address().port}/foo?y=Y`
+      );
+      await resp.json();
+      expect(testOptionalHandler).toHaveBeenLastCalledWith({
+        x: undefined,
+        y: "Y"
+      });
+    });
+
+    test("server will parse empty inputs as the empty string", async () => {
+      const resp = await fetch(
+        `http://localhost:${server.address().port}/foo?x=&y=Y`
+      );
+      await resp.json();
+      expect(testOptionalHandler).toHaveBeenLastCalledWith({ x: "", y: "Y" });
+    });
+  });
+});
+
 // RecoupleKoa type tests
 () => {
   const app = new Koa();
