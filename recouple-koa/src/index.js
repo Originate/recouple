@@ -10,14 +10,15 @@ export type Handler<I: {}, O> = I => Promise<O>;
 // eslint-disable-next-line no-unused-vars
 export type ServerData<I: {}> = {
   url: string,
-  queryParams: { [string]: TypeRep<any> }
+  queryParams: { [string]: TypeRep<any> },
+  captureParams: Array<string>
 };
 
 type ServerDataF = <I: {}>(I) => ServerData<I>;
 
 const serverDataVisitor: Recouple.Visitor<ServerDataF> = {
   init: () => {
-    return { url: "", queryParams: {} };
+    return { url: "", queryParams: {}, captureParams: [] };
   },
   handleFragment: url => data => {
     return {
@@ -29,6 +30,14 @@ const serverDataVisitor: Recouple.Visitor<ServerDataF> = {
     return {
       ...data,
       queryParams: { ...data.queryParams, ...queryParams }
+    };
+  },
+  handleCaptureParam: captureParam => data => {
+    const paramName = Object.keys(captureParam)[0];
+    return {
+      ...data,
+      url: `${data.url}/:${paramName}`,
+      captureParams: [...data.captureParams, paramName]
     };
   }
 };
@@ -44,14 +53,19 @@ export function safeGet<I: {}, O>(
   endpoint: Recouple.Endpoint<I, O>,
   handler: Handler<I, O>
 ): KoaMiddleware {
-  const { url, queryParams: queryParamsRep } = extractServerData(endpoint);
-  return KoaRoute.get(url, async (context, next) => {
+  const data = extractServerData(endpoint);
+  return KoaRoute.get(data.url, async (context, ...args) => {
     const input: any = {};
+    const lastIndex = data.captureParams.length;
+    const next = args[lastIndex];
 
     const rawQueryParams = queryString.parse(context.request.querystring);
-    for (const key of Object.keys(queryParamsRep)) {
+    for (const key of Object.keys(data.queryParams)) {
       input[key] = rawQueryParams[key];
     }
+    data.captureParams.forEach((key, index) => {
+      input[key] = args[index];
+    });
 
     const output = await handler(input);
     context.type = "application/json";
