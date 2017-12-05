@@ -102,7 +102,7 @@ const testOptionalEndpoint: Recouple.Endpoint<
 > = Recouple.endpoint()
   .fragment("foo")
   .queryParams({
-    x: T.maybeString,
+    x: T.option(T.string),
     y: T.string
   });
 
@@ -128,19 +128,27 @@ describe("for a GET endpoint with optional query parameters", () => {
     });
 
     describe("for null parameters", () => {
-      it("will serialize null parameters to the empty string", async () => {
+      it("will strip null parameters from the query string", async () => {
         const baseURL = `http://localhost:${server.address().port}`;
         const input = { x: null, y: "Y" };
         await RecoupleFetch.safeGet(baseURL, testOptionalEndpoint, input);
-        const expectedURL = `${baseURL}/foo?x=&y=Y`;
+        const expectedURL = `${baseURL}/foo?y=Y`;
         expect(fetch).toHaveBeenLastCalledWith(expectedURL);
       });
 
-      it("will remove undefined parameters", async () => {
+      it("will omit undefined parameters", async () => {
         const baseURL = `http://localhost:${server.address().port}`;
         const input = { x: undefined, y: "Y" };
         await RecoupleFetch.safeGet(baseURL, testOptionalEndpoint, input);
         const expectedURL = `${baseURL}/foo?y=Y`;
+        expect(fetch).toHaveBeenLastCalledWith(expectedURL);
+      });
+
+      it("will serialize empty string parameters to empty strings", async () => {
+        const baseURL = `http://localhost:${server.address().port}`;
+        const input = { x: "", y: "Y" };
+        await RecoupleFetch.safeGet(baseURL, testOptionalEndpoint, input);
+        const expectedURL = `${baseURL}/foo?x=&y=Y`;
         expect(fetch).toHaveBeenLastCalledWith(expectedURL);
       });
     });
@@ -155,15 +163,7 @@ describe("for a GET endpoint with optional query parameters", () => {
       expect(testOptionalHandler).toHaveBeenLastCalledWith({ x: "X", y: "Y" });
     });
 
-    test("server will parse null inputs", async () => {
-      const resp = await fetch(
-        `http://localhost:${server.address().port}/foo?x=&y=Y`
-      );
-      await resp.json();
-      expect(testOptionalHandler).toHaveBeenLastCalledWith({ x: "", y: "Y" });
-    });
-
-    test("server will accept absent optional inputs", async () => {
+    test("server will parse absent optional inputs as undefined", async () => {
       const resp = await fetch(
         `http://localhost:${server.address().port}/foo?y=Y`
       );
@@ -172,6 +172,14 @@ describe("for a GET endpoint with optional query parameters", () => {
         x: undefined,
         y: "Y"
       });
+    });
+
+    test("server will parse empty inputs as the empty string", async () => {
+      const resp = await fetch(
+        `http://localhost:${server.address().port}/foo?x=&y=Y`
+      );
+      await resp.json();
+      expect(testOptionalHandler).toHaveBeenLastCalledWith({ x: "", y: "Y" });
     });
   });
 });

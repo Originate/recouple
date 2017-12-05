@@ -52,7 +52,7 @@ export async function safeGet<I: {}, O>(
   let fullUrl = `${baseURL}${url}`;
   let definedParams = {};
   for (const prop in queryParams) {
-    if (queryParams[prop] !== undefined) {
+    if (queryParams[prop] != null) {
       definedParams[prop] = queryParams[prop];
     }
   }
