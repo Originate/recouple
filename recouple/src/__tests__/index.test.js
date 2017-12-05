@@ -95,53 +95,12 @@ describe("endpoint", () => {
   >);
 
   // ok
-  (endpoint().queryParams({ id: T.nullValue }): Recouple.Endpoint<
-    { id: null },
-    string
-  >);
-
-  // $FlowFixMe
-  (endpoint().queryParams({ id: T.nullValue }): Recouple.Endpoint<
-    { id: typeof undefined },
-    string
-  >);
-
-  // $FlowFixMe
-  (endpoint().queryParams({ id: T.nullValue }): Recouple.Endpoint<
-    { id: string },
-    string
-  >);
-
-  // ok
-  (endpoint().queryParams({ id: T.undefinedValue }): Recouple.Endpoint<
-    { id: typeof undefined },
-    string
-  >);
-
-  // $FlowFixMe
-  (endpoint().queryParams({ id: T.undefinedValue }): Recouple.Endpoint<
-    { id: null },
-    string
-  >);
-
-  // $FlowFixMe
-  (endpoint().queryParams({ id: T.undefinedValue }): Recouple.Endpoint<
-    { id: string },
-    string
-  >);
-
-  // ok
   (endpoint().queryParams({
-    id: T.union(T.number, T.string)
-  }): Recouple.Endpoint<{ id: number | string }, string>);
-
-  // $FlowFixMe
-  (endpoint().queryParams({
-    id: T.union(T.number, T.string)
-  }): Recouple.Endpoint<{ id: number }, string>);
-
-  // ok
-  (endpoint().queryParams({
-    id: T.maybe(T.string)
+    id: T.option(T.string)
   }): Recouple.Endpoint<{ id: ?string }, string>);
+
+  // $FlowFixMe
+  (endpoint().queryParams({
+    id: T.option(T.string)
+  }): Recouple.Endpoint<{ id: string }, string>);
 };

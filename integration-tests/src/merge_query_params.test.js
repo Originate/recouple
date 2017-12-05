@@ -3,7 +3,7 @@ import * as Recouple from "recouple";
 import * as T from "recouple/lib/type_rep";
 import * as RecoupleFetch from "recouple-fetch";
 import * as TestUtils from "./test_utils";
-import * as fetch from "isomorphic-fetch";
+import fetch from "isomorphic-fetch";
 
 const testEndpoint: Recouple.Endpoint<
   {
