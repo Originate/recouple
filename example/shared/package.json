@@ -1,6 +1,6 @@
 {
   "name": "example-shared",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "devDependencies": {
     "babel-plugin-transform-flow-strip-types": "^6.22.0",
@@ -9,7 +9,7 @@
     "prettier": "^1.8.2"
   },
   "dependencies": {
-    "recouple": "^0.1.0"
+    "recouple": "^0.2.0"
   },
   "scripts": {
     "check-all": "flow && yarn format-check",

@@ -1,6 +1,6 @@
 {
   "name": "example-backend",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "main": "entry.js",
   "devDependencies": {
@@ -13,7 +13,7 @@
   "dependencies": {
     "babel-register": "^6.26.0",
     "koa": "^2.4.1",
-    "recouple-koa": "^0.1.0"
+    "recouple-koa": "^0.2.0"
   },
   "scripts": {
     "check-all": "flow && yarn format-check",
