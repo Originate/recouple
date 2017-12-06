@@ -44,9 +44,6 @@ jobs:
           name: Set up NPM auth token
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
       - run:
-          name: Trust github.com
-          command: ssh-keyscan github.com >> ~/.ssh/known_hosts
-      - run:
           name: Set up git identity
           command: git config --global user.email "circleci@circleci" && git config --global user.name "CircleCI"
       - run:
@@ -55,6 +52,9 @@ jobs:
       - add-ssh-keys:
           fingerprints:
             - "35:ed:9b:95:c9:aa:c9:9c:47:df:04:28:0e:97:59:a8" # read-write github.com
+      - run:
+          name: Trust github.com
+          command: mkdir -p ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
       - run:
           name: Publish packages
           command: cd /tmp/project && ./scripts/ci-publish-release.sh
