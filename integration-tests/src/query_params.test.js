@@ -234,12 +234,12 @@ describe("for a GET endpoint with optional query parameters", () => {
       });
     });
 
-    test("server will parse empty inputs on optional parameters as null", async () => {
+    test("server will parse empty inputs on optional parameters as empty", async () => {
       const resp = await fetch(
         `http://localhost:${server.address().port}/foo?x=&y=Y`
       );
       await resp.json();
-      expect(testOptionalHandler).toHaveBeenLastCalledWith({ x: null, y: "Y" });
+      expect(testOptionalHandler).toHaveBeenLastCalledWith({ x: "", y: "Y" });
     });
   });
 });
