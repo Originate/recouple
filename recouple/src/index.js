@@ -1,10 +1,10 @@
 // @flow
 import { TypeRep } from "./type_rep";
 
-interface Middleware<I_old: {}, I: {}> {
+interface Middleware<OldInput: {}, Input: {}> {
   /*
    Our visitors use higher-kinded types so that their result type can depend on the
-   input of type I. Those are encoded as follows in Flow:
+   input of type Input. Those are encoded as follows in Flow:
 
    The higher-kinded type (F : * -> *) is encoded as the function type <A>(A) => F(A).
    The kind (* -> *) itself is encoded as the Function type.
@@ -15,131 +15,156 @@ interface Middleware<I_old: {}, I: {}> {
    example.
   */
 
-  _visit<DataF: Function>(
-    visitor: Visitor<DataF>
-  ): ($Call<DataF, I_old>) => $Call<DataF, I>;
+  _visit<F: Function>(
+    visitor: Visitor<F>
+  ): ($Call<F, OldInput>) => $Call<F, Input>;
 }
 
-export type Visitor<DataF: Function> = {|
-  init: () => $Call<DataF, {}>,
-  handleFragment: string => <I: {}>(
-    previous: $Call<DataF, I>
-  ) => $Call<DataF, I>,
-  handleQueryParams: <P: {}>(
-    P
-  ) => <I: {}>($Call<DataF, I>) => $Call<DataF, $Merge<I, $ExtractTypes<P>>>,
-  handleCaptureParam: <P: { [string]: TypeRep<string> }>(
-    P
-  ) => <I: {}>($Call<DataF, I>) => $Call<DataF, $Merge<I, $ExtractTypes<P>>>
+export type Visitor<F: Function> = {|
+  init: () => $Call<F, {}>,
+  handleFragment: string => <Input: {}>(
+    previous: $Call<F, Input>
+  ) => $Call<F, Input>,
+  handleQueryParams: <Params: {}>(
+    Params
+  ) => <Input: {}>(
+    $Call<F, Input>
+  ) => $Call<F, $Merge<Input, $ExtractTypes<Params>>>,
+  handleCaptureParam: <Params: { [string]: TypeRep<string> }>(
+    Params
+  ) => <Input: {}>(
+    $Call<F, Input>
+  ) => $Call<F, $Merge<Input, $ExtractTypes<Params>>>
 |};
 
-export class Fragment<I: {}> implements Middleware<I, I> {
+export class Fragment<Input: {}> implements Middleware<Input, Input> {
   urlFragment: string;
   constructor(urlFragment: string) {
     this.urlFragment = urlFragment;
   }
-  _visit<DataF: Function>(
-    visitor: Visitor<DataF>
-  ): ($Call<DataF, I>) => $Call<DataF, I> {
+  _visit<F: Function>(
+    visitor: Visitor<F>
+  ): ($Call<F, Input>) => $Call<F, Input> {
     return visitor.handleFragment(this.urlFragment);
   }
 }
 
 type $Merge<A: {}, B: {}> = { ...$Exact<A>, ...$Exact<B> };
-type $ExtractTypes<O: {}> = $ObjMap<O, <V>(TypeRep<V>) => V>;
+type $ExtractTypes<Output: {}> = $ObjMap<
+  Output,
+  <Field>(TypeRep<Field>) => Field
+>;
 
-export class QueryParams<I: {}, P: {}>
-  implements Middleware<I, $Merge<I, $ExtractTypes<P>>> {
-  params: P;
-  constructor(params: P) {
+export class QueryParams<Input: {}, Params: {}>
+  implements Middleware<Input, $Merge<Input, $ExtractTypes<Params>>> {
+  params: Params;
+  constructor(params: Params) {
     this.params = params;
   }
-  _visit<DataF: Function>(
-    visitor: Visitor<DataF>
-  ): ($Call<DataF, I>) => $Call<DataF, $Merge<I, $ExtractTypes<P>>> {
+  _visit<F: Function>(
+    visitor: Visitor<F>
+  ): ($Call<F, Input>) => $Call<F, $Merge<Input, $ExtractTypes<Params>>> {
     return visitor.handleQueryParams(this.params);
   }
 }
 
-export class CaptureParam<I: {}, P: { [string]: TypeRep<string> }>
-  implements Middleware<I, $Merge<I, $ExtractTypes<P>>> {
-  param: P;
-  constructor(param: P) {
+export class CaptureParam<Input: {}, Params: { [string]: TypeRep<string> }>
+  implements Middleware<Input, $Merge<Input, $ExtractTypes<Params>>> {
+  param: Params;
+  constructor(param: Params) {
     if (Object.keys(param).length != 1)
       throw new Error("CaptureParam needs a singleton object");
     this.param = param;
   }
-  _visit<DataF: Function>(
-    visitor: Visitor<DataF>
-  ): ($Call<DataF, I>) => $Call<DataF, $Merge<I, $ExtractTypes<P>>> {
+  _visit<F: Function>(
+    visitor: Visitor<F>
+  ): ($Call<F, Input>) => $Call<F, $Merge<Input, $ExtractTypes<Params>>> {
     return visitor.handleCaptureParam(this.param);
   }
 }
 
-export interface Endpoint<I: {}, O> {
-  _visit<DataF: Function>(visitor: Visitor<DataF>): $Call<DataF, I>;
-  append<I_new: {}>(middleware: Middleware<I, I_new>): Endpoint<I_new, O>;
-  fragment(urlFragment: string): Endpoint<I, O>;
-  queryParams<P: {}>(params: P): Endpoint<$Merge<I, $ExtractTypes<P>>, O>;
-  captureParam<P: { [string]: TypeRep<string> }>(
-    param: P
-  ): Endpoint<$Merge<I, $ExtractTypes<P>>, O>;
+export interface Endpoint<Input: {}, Output> {
+  _visit<F: Function>(visitor: Visitor<F>): $Call<F, Input>;
+  append<NewInput: {}>(
+    middleware: Middleware<Input, NewInput>
+  ): Endpoint<NewInput, Output>;
+  fragment(urlFragment: string): Endpoint<Input, Output>;
+  queryParams<Params: {}>(
+    params: Params
+  ): Endpoint<$Merge<Input, $ExtractTypes<Params>>, Output>;
+  captureParam<Params: { [string]: TypeRep<string> }>(
+    param: Params
+  ): Endpoint<$Merge<Input, $ExtractTypes<Params>>, Output>;
 }
 
-export class EndpointImpl<I: {}, O> implements Endpoint<I, O> {
+export class EndpointImpl<Input: {}, Output>
+  implements Endpoint<Input, Output> {
   constructor() {}
 
-  _visit<DataF: Function>(visitor: Visitor<DataF>): $Call<DataF, I> {
+  _visit<F: Function>(visitor: Visitor<F>): $Call<F, Input> {
     throw "abstract method";
   }
 
-  append<I_new: {}>(middleware: Middleware<I, I_new>): Endpoint<I_new, O> {
+  append<NewInput: {}>(
+    middleware: Middleware<Input, NewInput>
+  ): Endpoint<NewInput, Output> {
     return new Snoc({ previous: this, middleware });
   }
 
-  fragment(urlFragment: string): Endpoint<I, O> {
+  fragment(urlFragment: string): Endpoint<Input, Output> {
     return this.append(new Fragment(urlFragment));
   }
 
-  queryParams<P: {}>(params: P): Endpoint<$Merge<I, $ExtractTypes<P>>, O> {
+  queryParams<Params: {}>(
+    params: Params
+  ): Endpoint<$Merge<Input, $ExtractTypes<Params>>, Output> {
     return this.append(new QueryParams(params));
   }
 
-  captureParam<P: {}>(param: P): Endpoint<$Merge<I, $ExtractTypes<P>>, O> {
+  captureParam<Params: {}>(
+    param: Params
+  ): Endpoint<$Merge<Input, $ExtractTypes<Params>>, Output> {
     return this.append(new CaptureParam(param));
   }
 }
 
-type SnocData<I_old: {}, O_old, I: {}> = {
-  previous: Endpoint<I_old, O_old>,
-  middleware: Middleware<I_old, I>
+type SnocData<OldInput: {}, OldOutput, Input: {}> = {
+  previous: Endpoint<OldInput, OldOutput>,
+  middleware: Middleware<OldInput, Input>
 };
 
-export class Snoc<I_old: {}, O_old, I: {}, O> extends EndpointImpl<I, O> {
-  data: SnocData<I_old, O_old, I>;
-  constructor(data: SnocData<I_old, O_old, I>) {
+export class Snoc<
+  OldInput: {},
+  OldOutput,
+  Input: {},
+  Output
+> extends EndpointImpl<Input, Output> {
+  data: SnocData<OldInput, OldOutput, Input>;
+  constructor(data: SnocData<OldInput, OldOutput, Input>) {
     super();
     this.data = data;
   }
 
-  _visit<DataF: Function>(visitor: Visitor<DataF>): $Call<DataF, I> {
+  _visit<F: Function>(visitor: Visitor<F>): $Call<F, Input> {
     const { previous, middleware } = this.data;
     return middleware._visit(visitor)(previous._visit(visitor));
   }
 }
 
-export class Nil<O> extends EndpointImpl<{}, O> {
-  _visit<DataF: Function>(visitor: Visitor<DataF>): $Call<DataF, {}> {
+export class Nil<Output> extends EndpointImpl<{}, Output> {
+  _visit<F: Function>(visitor: Visitor<F>): $Call<F, {}> {
     return visitor.init();
   }
 }
 
-export function endpoint<O>(): Endpoint<{}, O> {
+export function endpoint<Output>(): Endpoint<{}, Output> {
   return new Nil();
 }
 
-export type Visit<DataF: Function, I> = (Visitor<DataF>) => $Call<DataF, I>;
+export type Visit<F: Function, Input> = (Visitor<F>) => $Call<F, Input>;
 
-export function makeVisit<I: {}, O>(endpoint: Endpoint<I, O>): Visit<*, I> {
+export function makeVisit<Input: {}, Output>(
+  endpoint: Endpoint<Input, Output>
+): Visit<*, Input> {
   return endpoint._visit.bind(endpoint);
 }
