@@ -83,6 +83,18 @@ describe("endpoint", () => {
 // type-level tests
 () => {
   // ok
+  (endpoint().queryParams({ id: T.number }): Recouple.Endpoint<
+    { id: number },
+    string
+  >);
+
+  // $FlowFixMe
+  (endpoint().queryParams({ id: T.number }): Recouple.Endpoint<
+    { id: string },
+    string
+  >);
+
+  // ok
   (endpoint().queryParams({
     id: T.option(T.string)
   }): Recouple.Endpoint<{ id: ?string }, string>);

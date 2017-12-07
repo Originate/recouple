@@ -91,6 +91,66 @@ describe("for a GET endpoint with no parameters", () => {
       last: "Last"
     });
   });
+
+  test("server will parse empty inputs on non optional parameters as empty strings", async () => {
+    const server = TestUtils.makeServer({
+      endpoint: testEndpoint,
+      handler: testHandler
+    });
+    const resp = await fetch(
+      `http://localhost:${server.address().port}/foo?first=&last=Last`
+    );
+    await resp.json();
+    expect(testHandler).toHaveBeenLastCalledWith({
+      first: "",
+      last: "Last"
+    });
+  });
+});
+
+const testNumEndpoint: Recouple.Endpoint<
+  {
+    x: number
+  },
+  number
+> = Recouple.endpoint()
+  .fragment("foo")
+  .queryParams({
+    x: T.number
+  });
+
+const testNumHandler = jest.fn(async () => {
+  return 0;
+});
+
+describe("for a GET endpoint with number query parameters", () => {
+  let server;
+  beforeEach(() => {
+    server = TestUtils.makeServer({
+      endpoint: testNumEndpoint,
+      handler: testNumHandler
+    });
+  });
+
+  describe("for the recouple client", () => {
+    it("can be called with a query parameter", async () => {
+      const baseURL = `http://localhost:${server.address().port}`;
+      const input = { x: 47 };
+      await RecoupleFetch.safeGet(baseURL, testNumEndpoint, input);
+      const expectedURL = `${baseURL}/foo?x=47`;
+      expect(fetch).toHaveBeenLastCalledWith(expectedURL);
+    });
+  });
+
+  describe("for the recouple server", () => {
+    it("can be called with a query parameter", async () => {
+      const resp = await fetch(
+        `http://localhost:${server.address().port}/foo?x=47`
+      );
+      await resp.json();
+      expect(testNumHandler).toHaveBeenLastCalledWith({ x: 47 });
+    });
+  });
 });
 
 const testOptionalEndpoint: Recouple.Endpoint<
@@ -174,12 +234,12 @@ describe("for a GET endpoint with optional query parameters", () => {
       });
     });
 
-    test("server will parse empty inputs as the empty string", async () => {
+    test("server will parse empty inputs on optional parameters as null", async () => {
       const resp = await fetch(
         `http://localhost:${server.address().port}/foo?x=&y=Y`
       );
       await resp.json();
-      expect(testOptionalHandler).toHaveBeenLastCalledWith({ x: "", y: "Y" });
+      expect(testOptionalHandler).toHaveBeenLastCalledWith({ x: null, y: "Y" });
     });
   });
 });
