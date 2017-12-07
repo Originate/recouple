@@ -91,6 +91,21 @@ describe("for a GET endpoint with no parameters", () => {
       last: "Last"
     });
   });
+
+  test("server will parse empty inputs on non optional parameters as empty strings", async () => {
+    const server = TestUtils.makeServer({
+      endpoint: testEndpoint,
+      handler: testHandler
+    });
+    const resp = await fetch(
+      `http://localhost:${server.address().port}/foo?first=&last=Last`
+    );
+    await resp.json();
+    expect(testHandler).toHaveBeenLastCalledWith({
+      first: "",
+      last: "Last"
+    });
+  });
 });
 
 const testNumEndpoint: Recouple.Endpoint<
@@ -105,7 +120,7 @@ const testNumEndpoint: Recouple.Endpoint<
   });
 
 const testNumHandler = jest.fn(async () => {
-  return 47;
+  return 0;
 });
 
 describe("for a GET endpoint with number query parameters", () => {
@@ -133,7 +148,7 @@ describe("for a GET endpoint with number query parameters", () => {
         `http://localhost:${server.address().port}/foo?x=47`
       );
       await resp.json();
-      expect(testNumEndpoint).toHaveBeenLastCalledWith({ x: 47 });
+      expect(testNumHandler).toHaveBeenLastCalledWith({ x: 47 });
     });
   });
 });
@@ -219,12 +234,12 @@ describe("for a GET endpoint with optional query parameters", () => {
       });
     });
 
-    test("server will parse empty inputs as the empty string", async () => {
+    test("server will parse empty inputs on optional parameters as null", async () => {
       const resp = await fetch(
         `http://localhost:${server.address().port}/foo?x=&y=Y`
       );
       await resp.json();
-      expect(testOptionalHandler).toHaveBeenLastCalledWith({ x: "", y: "Y" });
+      expect(testOptionalHandler).toHaveBeenLastCalledWith({ x: null, y: "Y" });
     });
   });
 });
