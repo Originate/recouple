@@ -196,7 +196,7 @@ describe("for a GET endpoint with optional query parameters", () => {
         expect(fetch).toHaveBeenLastCalledWith(expectedURL);
       });
 
-      it("will omit undefined parameters", async () => {
+      it("will strip undefined parameters from the query string", async () => {
         const baseURL = `http://localhost:${server.address().port}`;
         const input = { x: undefined, y: "Y" };
         await RecoupleFetch.safeGet(baseURL, testOptionalEndpoint, input);
