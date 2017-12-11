@@ -92,7 +92,7 @@ describe("for a GET endpoint with no parameters", () => {
     });
   });
 
-  test("server will parse empty inputs on non optional parameters as empty strings", async () => {
+  test("server will parse empty inputs on non-optional parameters as empty strings", async () => {
     const server = TestUtils.makeServer({
       endpoint: testEndpoint,
       handler: testHandler
@@ -119,9 +119,7 @@ const testNumEndpoint: Recouple.Endpoint<
     x: T.number
   });
 
-const testNumHandler = jest.fn(async () => {
-  return 0;
-});
+const testNumHandler = jest.fn(async () => 0);
 
 describe("for a GET endpoint with number query parameters", () => {
   let server;
