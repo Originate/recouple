@@ -61,7 +61,8 @@ export function safeGet<I: {}, O>(
 
     const rawQueryParams = queryString.parse(context.request.querystring);
     for (const key of Object.keys(data.queryParams)) {
-      input[key] = rawQueryParams[key];
+      const tRep = data.queryParams[key];
+      input[key] = tRep.deserialize(rawQueryParams[key]);
     }
     data.captureParams.forEach((key, index) => {
       input[key] = args[index];
