@@ -7,9 +7,8 @@ class StringRep implements TypeRep<string> {
   deserialize(input: ?string): string {
     if (input == null) {
       throw new Error("cannot deserialize null to string");
-    } else {
-      return input;
     }
+    return input;
   }
 }
 
@@ -17,14 +16,12 @@ class NumRep implements TypeRep<number> {
   deserialize(input: ?string): number {
     if (input == null) {
       throw new Error("cannot deserialize null to number");
-    } else {
-      const num = Number.parseInt(input);
-      if (isNaN(num)) {
-        throw new Error("cannot parse number");
-      } else {
-        return num;
-      }
     }
+    const num = Number.parseInt(input);
+    if (isNaN(num)) {
+      throw new Error("cannot parse number");
+    }
+    return num;
   }
 }
 
@@ -36,9 +33,8 @@ class OptionRep<T> implements TypeRep<?T> {
   deserialize(input: ?string): ?T {
     if (input == null) {
       return input;
-    } else {
-      return this.inner.deserialize(input);
     }
+    return this.inner.deserialize(input);
   }
 }
 
