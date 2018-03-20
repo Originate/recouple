@@ -16,13 +16,8 @@
     "eslint-plugin-jest": "^21.3.2",
     "flow-copy-source": "^1.2.1",
     "jest": "^21.2.1",
+    "koa-route": "^3.2.0",
     "prettier": "^1.8.2"
-  },
-  "dependencies": {
-    "babel-core": "^6.26.0",
-    "isomorphic-fetch": "^2.2.1",
-    "koa": "^2.4.1",
-    "koa-route": "^3.2.0"
   },
   "scripts": {
     "build": "yarn build-babel && yarn build-flow",
